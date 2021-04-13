@@ -16,4 +16,4 @@ public:
 private:
 	int coins = 5;
 	int health = 100;
-}
+};
