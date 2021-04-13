@@ -2,6 +2,7 @@
 
 #include<iostream>
 #include<SDL2/SDL.h>
+#include "player.hpp"
 
 const int SCREEN_WIDTH = 720;
 const int SCREEN_HEIGHT = 720;
@@ -23,6 +24,8 @@ public:
 	bool running() {return isRunning;}
 private:
 	bool isRunning = false;
-	SDL_Window *window;
-	SDL_Renderer *renderer;
+	SDL_Window *window = nullptr;
+	SDL_Renderer *renderer = nullptr;
+	player *p1 = nullptr;
+	player *p2 = nullptr;
 };

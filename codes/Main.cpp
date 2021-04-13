@@ -18,6 +18,7 @@ int main()
 			a->render();
 		}
 		a->clean();
+		cout << "Want to play again  (Y/N)"<<endl;
 		cin >> PLAY_AGAIN;
 	}
 	return 0;
