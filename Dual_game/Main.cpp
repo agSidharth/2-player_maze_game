@@ -1,10 +1,16 @@
+const int SCREEN_WIDTH = 1000;
+const int SCREEN_HEIGHT = 800;
+const int PLAYER_SIZE = 64;
+const int BULLET_SIZE = 32;
+const int NORTH = 0;
+const int EAST = 1;
+const int SOUTH = 2;
+const int WEST = 3;
+
 #include <iostream>
 #include <SDL2/SDL.h>
 #include "game.hpp"			//handles all the things on the screen
 using namespace std;
-
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 800;
 
 int main()
 {
@@ -40,8 +46,9 @@ int main()
 		}
 		game->clean();
 
-		cout << "Want to play again  (y/n)"<<endl;
-		cin >> PLAY_AGAIN;
+		PLAY_AGAIN = 'n';
+		//cout << "Want to play again  (y/n)"<<endl;
+		//cin >> PLAY_AGAIN;
 	}
 	return 0;
 }

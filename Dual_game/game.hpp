@@ -3,8 +3,8 @@
 #include<iostream>
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_image.h>
+#include "bullet.hpp"
 #include "player.hpp"
-//#include "bullet.hpp"
 using namespace std;
 
 class Game
@@ -25,17 +25,19 @@ public:
 	bool running() {return isRunning;}
 
 	bool isRunning = false;
+
 	SDL_Window *window = nullptr;
 	SDL_Renderer *renderer = nullptr;
 	player *player1 = nullptr;
 	player *player2 = nullptr;
+	vector<bullet*> all_bullets;
 };
 
 
 Game::Game()
 {
 	player1 = new player(0,0);
-	player2 = new player(600,600);
+	player2 = new player(SCREEN_WIDTH-PLAYER_SIZE,SCREEN_HEIGHT-PLAYER_SIZE);
 }
 
 void Game::init(char* title,int xpos,int ypos,int width,int height)
@@ -71,33 +73,52 @@ void Game::handleEvents()
 {
 	SDL_Event event;
 	SDL_PollEvent(&event);
-	switch (event.type)
-	{
-		case SDL_QUIT: isRunning = false;break;
-		case SDL_KEYDOWN:
-    		switch (event.key.keysym.sym)
+	int xmove = 0;
+	int ymove = 0;
+
+	if(event.type==SDL_QUIT) isRunning = false;
+	else	
+    {
+		switch (event.key.keysym.sym)
     	{
-        	case SDLK_LEFT:  player1->destR.x--; break;
-        	case SDLK_RIGHT: player1->destR.x++; break;
-        	case SDLK_UP:    player1->destR.y--; break;
-        	case SDLK_DOWN:  player1->destR.y++; break;
-    	} break;
-		default: break;
+        	case SDLK_LEFT: 	xmove = -5;player1->playerDir = 3;break;
+        	case SDLK_RIGHT: 	xmove = 5; player1->playerDir = 1;break;
+        	case SDLK_UP:    	ymove = -5; player1->playerDir = 0; break;
+        	case SDLK_DOWN:  	ymove = 5; player1->playerDir = 2; break;
+			case SDLK_s: 		
+			bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->playerDir);
+			newbullet->init(renderer);
+			all_bullets.push_back(newbullet);break;
+    	} 
+		player1->destR = player1->valid_move(player1->destR,xmove,ymove);
 	}
 }
 
 void Game::update()
 {
-	player1->destR.x++;
-	player2->destR.x--;
+	int i=0;
+	int total_bullets = all_bullets.size();
+	while(i<total_bullets)
+	{
+		all_bullets[i]->move();
+		i++;
+	}
 }
 void Game::render()
 {
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer,player1->playerTex,NULL,&(player1->destR));
 	SDL_RenderCopy(renderer,player2->playerTex,NULL,&(player2->destR));
-	SDL_RenderPresent(renderer);
-	
+
+	int i=0;
+	int total_bullets = all_bullets.size();
+	while(i<total_bullets)
+	{
+		SDL_RenderCopy(renderer,all_bullets[i]->bulletTex,NULL,&(all_bullets[i]->destR));
+		i++;
+	}
+
+	SDL_RenderPresent(renderer);	
 }
 
 void Game::clean()
