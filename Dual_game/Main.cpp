@@ -40,7 +40,7 @@ int main()
 		}
 		game->clean();
 
-		cout << "Want to play again  (Y/N)"<<endl;
+		cout << "Want to play again  (y/n)"<<endl;
 		cin >> PLAY_AGAIN;
 	}
 	return 0;

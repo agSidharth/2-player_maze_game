@@ -4,6 +4,7 @@
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_image.h>
 #include "player.hpp"
+//#include "bullet.hpp"
 using namespace std;
 
 class Game
@@ -73,6 +74,14 @@ void Game::handleEvents()
 	switch (event.type)
 	{
 		case SDL_QUIT: isRunning = false;break;
+		case SDL_KEYDOWN:
+    		switch (event.key.keysym.sym)
+    	{
+        	case SDLK_LEFT:  player1->destR.x--; break;
+        	case SDLK_RIGHT: player1->destR.x++; break;
+        	case SDLK_UP:    player1->destR.y--; break;
+        	case SDLK_DOWN:  player1->destR.y++; break;
+    	} break;
 		default: break;
 	}
 }
