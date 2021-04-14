@@ -4,6 +4,7 @@
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_image.h>
 #include "Tile.hpp"
+#include "Coin.hpp"
 #include "mazegen.hpp"
 using namespace std;
 
@@ -19,6 +20,7 @@ public:
 
     SDL_Rect srcR;
     Tile* tile = nullptr;
+    Coin* coin = nullptr;
 
     int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE];
 };
@@ -27,6 +29,8 @@ Map::Map(SDL_Renderer *renderer)
 {
     tile = new Tile(0,0);
     tile->init(renderer);
+    coin = new Coin(0,0);
+    coin->init(renderer);
 
     srcR.w = TILE_SIZE;
     srcR.h = TILE_SIZE;
@@ -65,11 +69,17 @@ void Map::DrawMap(SDL_Renderer *renderer)
             type = map[row][col];
             xpos = row*TILE_SIZE;
             ypos = col*TILE_SIZE;
-
+            if(type == 0)
+            {
+            	int k = rand()%80000;
+            	if(k==0) map[row][col] = 2;
+            }
             switch(type)
             {
                 case 1:
                     tile->draw(renderer,srcR,xpos,ypos);break;
+                case 2:
+                	coin->draw(renderer,srcR,xpos,ypos);break;
                 default:break;
             }
         }
