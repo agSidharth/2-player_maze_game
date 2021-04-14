@@ -12,7 +12,7 @@ public:
 
 	void init(SDL_Renderer *renderer,string path);						//initialize the player
 
-	SDL_Rect valid_move(SDL_Rect box,int xmove,int ymove);
+	SDL_Rect valid_move(SDL_Rect box,int xmove,int ymove,int maze[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE]);
 
 	void incoins(int x=1) {coins+=x;}	//increase coins by x(or 1 if not provided)
 
@@ -43,7 +43,7 @@ void player::init(SDL_Renderer *renderer,string path)
 	SDL_FreeSurface(tmpSurface);
 }
 
-SDL_Rect player::valid_move(SDL_Rect box,int xmove,int ymove)
+SDL_Rect player::valid_move(SDL_Rect box,int xmove,int ymove,int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE])
 {
 	bool check = (box.x+xmove>=0) && (box.x+PLAYER_SIZE+xmove<=SCREEN_WIDTH);
 	check = check && (box.y+ymove>=0) && (box.y+PLAYER_SIZE+ymove<=SCREEN_HEIGHT);
@@ -51,8 +51,16 @@ SDL_Rect player::valid_move(SDL_Rect box,int xmove,int ymove)
 	SDL_Rect temp = box;
 	if(check)
 	{
-		temp.x = box.x + xmove;
-		temp.y = box.y + ymove;
+		check = check && (map[(box.x+xmove)/TILE_SIZE][(box.y+ymove)/TILE_SIZE]==0); 
+		check = check && (map[(box.x+xmove+PLAYER_SIZE)/TILE_SIZE][(box.y+ymove+PLAYER_SIZE)/TILE_SIZE]==0);
+		check = check && (map[(box.x+xmove+PLAYER_SIZE)/TILE_SIZE][(box.y+ymove)/TILE_SIZE]==0); 
+		check = check && (map[(box.x+xmove)/TILE_SIZE][(box.y+ymove+PLAYER_SIZE)/TILE_SIZE]==0);
+
+		if(check)
+		{
+			temp.x = box.x + xmove;
+			temp.y = box.y + ymove;
+		}
 	}
 	return temp;
 }
