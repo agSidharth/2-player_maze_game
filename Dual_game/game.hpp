@@ -3,7 +3,7 @@
 #include<iostream>
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_image.h>
-#include "map.hpp"
+#include "Map.hpp"
 #include "bullet.hpp"
 #include "player.hpp"
 using namespace std;

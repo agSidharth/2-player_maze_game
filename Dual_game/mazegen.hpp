@@ -2,7 +2,25 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-int getNum(vector<int>& v)
+class maze
+{
+public:
+	int a,b;
+	vector<vector<int>> M;
+	maze(int x,int y)
+	{
+		a = x;b = y;
+	}
+
+	int getNum(vector<int>& v);
+	vector<int> generateRandom(int n);
+
+	void init(int x);
+	void create(int x,int y);
+};
+
+
+int maze::getNum(vector<int>& v)
 {
     int n = v.size();
     int index = rand() % n;
@@ -11,9 +29,7 @@ int getNum(vector<int>& v)
     v.pop_back();
     return num;
 }
- 
-// Function to generate n non-repeating random numbers
-vector<int> generateRandom(int n)
+vector<int> maze::generateRandom(int n)
 {
     vector<int> v(n);
     for (int i = 0; i < n; i++)
@@ -24,17 +40,7 @@ vector<int> generateRandom(int n)
     }
     return result;
 }
-
-class maze
-{
-public:
-	int a,b;
-	vector<vector<int>> M;
-	maze(int x,int y)
-	{
-		a = x;b = y;
-	}
-	void init()
+void maze::init(int x)
 	{
 		M.resize(0);
 		for(int i=0;i<a;i++)
@@ -42,9 +48,10 @@ public:
 			vector<int> temp(b,1);
 			M.push_back(temp);
 		}
-		srand(time(NULL));
+		srand(x);
 	}
-	void create(int x,int y)
+
+void maze::create(int x,int y)
 	{
 		M[x][y] = 0;
 		vector<int> dirn = generateRandom(4);
@@ -97,25 +104,3 @@ public:
 			}
 		}
 	}
-	void print()
-	{
-		for(int i=0;i<a;i++)
-		{
-			for(int j=0;j<b;j++)
-			{
-				cout << M[i][j];
-			}
-			cout << endl;
-		}
-	}
-
-};
-
-
-int main()
-{
-	maze* a = new maze(10,10);
-	a->init();
-	a->create(0,0);
-	a->print();
-}
