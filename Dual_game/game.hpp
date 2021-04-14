@@ -98,9 +98,14 @@ void Game::update()
 {
 	int i=0;
 	int total_bullets = all_bullets.size();
-	while(i<total_bullets)
+	while(i<all_bullets.size())
 	{
-		all_bullets[i]->move();
+		if(all_bullets[i]->move() == false)
+		{
+			auto it = all_bullets.begin();
+			all_bullets.erase(it);
+			continue;
+		}
 		i++;
 	}
 }

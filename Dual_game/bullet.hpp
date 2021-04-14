@@ -11,12 +11,12 @@ public:
 	bullet(int x,int y,int dir);
 	
 	void init(SDL_Renderer *renderer);
-	void move();
+	bool move();
 
 	SDL_Texture* bulletTex;
 	SDL_Rect destR;
 	
-	//int pathlen;			//stores total pathlength covered till now, bullet can go finite distances only..
+	int pathlen = 0;			//stores total pathlength covered till now, bullet can go finite distances only..
 	int direction; 
 	int distance = 10;		//distance moved in single iteration.				
 };
@@ -40,8 +40,9 @@ void bullet::init(SDL_Renderer *renderer)
 	SDL_FreeSurface(tmpSurface);
 }
 
-void bullet::move()
+bool bullet::move()
 {
+	if(pathlen >= 2000) return false;
 	switch(direction)
 	{
 		case 0: 
@@ -57,4 +58,6 @@ void bullet::move()
 		if(destR.x<distance) direction = 1;
 		destR.x = abs(destR.x - distance);break;		
 	}
+	pathlen += distance;
+	return true;
 }
