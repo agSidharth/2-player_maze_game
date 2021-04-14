@@ -13,6 +13,8 @@ public:
 
     void init(SDL_Renderer* renderer);
 
+    void draw(SDL_Renderer* renderer,SDL_Rect srcR,int xpos,int ypos);
+
     SDL_Rect destR;
     SDL_Texture* tileTex;
 };
@@ -21,11 +23,11 @@ Tile::Tile(int x,int y)
 {
     destR.x = x;
     destR.y = y;
-    destR.w = PLAYER_SIZE;
-    destR.h = PLAYER_SIZE;
+    destR.w = TILE_SIZE;
+    destR.h = TILE_SIZE;
 }
 
-Tile::init(SDL_Renderer* renderer)
+void Tile::init(SDL_Renderer* renderer)
 {
     string path = "./resources/tile.png";
 	const char* path_array = path.c_str();
@@ -33,4 +35,11 @@ Tile::init(SDL_Renderer* renderer)
 	SDL_Surface* tmpSurface = IMG_Load(path_array);
 	tileTex = SDL_CreateTextureFromSurface(renderer,tmpSurface);
 	SDL_FreeSurface(tmpSurface);
+}
+
+void Tile::draw(SDL_Renderer* renderer,SDL_Rect srcR,int xpos,int ypos)
+{
+    destR.x = xpos;
+    destR.y = ypos;
+    SDL_RenderCopy(renderer,tileTex,NULL,&(destR));
 }

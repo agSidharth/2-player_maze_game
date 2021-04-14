@@ -2,12 +2,12 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-class maze
+class Maze
 {
 public:
 	int a,b;
 	vector<vector<int>> M;
-	maze(int x,int y)
+	Maze(int x,int y)
 	{
 		a = x;b = y;
 	}
@@ -20,7 +20,7 @@ public:
 };
 
 
-int maze::getNum(vector<int>& v)
+int Maze::getNum(vector<int>& v)
 {
     int n = v.size();
     int index = rand() % n;
@@ -29,7 +29,7 @@ int maze::getNum(vector<int>& v)
     v.pop_back();
     return num;
 }
-vector<int> maze::generateRandom(int n)
+vector<int> Maze::generateRandom(int n)
 {
     vector<int> v(n);
     for (int i = 0; i < n; i++)
@@ -40,7 +40,7 @@ vector<int> maze::generateRandom(int n)
     }
     return result;
 }
-void maze::init(int x)
+void Maze::init(int x)
 	{
 		M.resize(0);
 		for(int i=0;i<a;i++)
@@ -48,10 +48,10 @@ void maze::init(int x)
 			vector<int> temp(b,1);
 			M.push_back(temp);
 		}
-		srand(x);
+		srand(time(0));		
 	}
 
-void maze::create(int x,int y)
+void Maze::create(int x,int y)
 	{
 		M[x][y] = 0;
 		vector<int> dirn = generateRandom(4);

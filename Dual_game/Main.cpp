@@ -1,6 +1,7 @@
 const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 800;
-const int PLAYER_SIZE = 50;
+const int PLAYER_SIZE = 40;
+const int TILE_SIZE = 50;
 const int BULLET_SIZE = 20;
 const int NORTH = 0;
 const int EAST = 1;

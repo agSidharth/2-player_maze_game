@@ -31,14 +31,14 @@ public:
 	SDL_Renderer *renderer = nullptr;
 	player *player1 = nullptr;
 	player *player2 = nullptr;
+	Map* maze = nullptr;
 	vector<bullet*> all_bullets;
 };
 
 
 Game::Game()
 {
-	player1 = new player(0,0);
-	player2 = new player(SCREEN_WIDTH-PLAYER_SIZE,SCREEN_HEIGHT-PLAYER_SIZE);
+	
 }
 
 void Game::init(char* title,int xpos,int ypos,int width,int height)
@@ -63,6 +63,15 @@ void Game::init(char* title,int xpos,int ypos,int width,int height)
 		isRunning = false;
 	}
 
+	maze = new Map(renderer);
+
+	//for correct initialization of location of players.
+	pair<int,int> min_location = maze->init_pos(0,0,1);
+	player1 = new player(min_location.first,min_location.second);
+
+	pair<int,int> max_location = maze->init_pos(SCREEN_WIDTH/TILE_SIZE-1,SCREEN_HEIGHT/TILE_SIZE-1,-1);
+	player2 = new player(max_location.first,max_location.second);
+	
 	string path1 = "resources/ghost1.png"; 
 	player1->init(renderer,path1);
 
@@ -113,6 +122,7 @@ void Game::update()
 void Game::render()
 {
 	SDL_RenderClear(renderer);
+	maze->DrawMap(renderer);
 	SDL_RenderCopy(renderer,player1->playerTex,NULL,&(player1->destR));
 	SDL_RenderCopy(renderer,player2->playerTex,NULL,&(player2->destR));
 
