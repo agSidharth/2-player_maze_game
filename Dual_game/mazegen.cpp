@@ -17,6 +17,17 @@ public:
 
 	void init(int x);
 	void create(int x,int y);
+	void print()
+	{
+		for(int i=0;i<a;i++)
+		{
+			for(int j=0;j<b;j++)
+			{
+				cout << M[i][j];
+			}
+			cout << endl;
+		}
+	}
 };
 
 
@@ -103,15 +114,11 @@ void Maze::create(int x,int y)
 				}
 			}
 		}
-		if(x==0&&y==0)
-		{
-			for(int i=0;i<a;i++)
-		{
-			for(int j=0;j<b;j++)
-			{
-				cout << M[i][j];
-			}
-			cout << endl;
-		}
-		}
 	}
+int main()
+{
+	Maze* m = new Maze(21,15);
+	m->init(43);
+	m->create(0,0);
+	m->print();
+}

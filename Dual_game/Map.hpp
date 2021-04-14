@@ -33,10 +33,11 @@ Map::Map(SDL_Renderer *renderer)
     srcR.x = 0;
     srcR.y = 0;
 
-    Maze* matrix = new Maze(SCREEN_WIDTH/TILE_SIZE,SCREEN_WIDTH/TILE_SIZE);
+    Maze* matrix = new Maze(SCREEN_WIDTH/TILE_SIZE,SCREEN_HEIGHT/TILE_SIZE);
+    cout << "HI";
     matrix -> init(43);
     
-    matrix -> create(SCREEN_WIDTH/TILE_SIZE,SCREEN_HEIGHT/TILE_SIZE);
+    matrix -> create(0,0);
     vector<vector<int>> vector_map = matrix->M;
     
     for(int row=0;row<SCREEN_WIDTH/TILE_SIZE;row++)
@@ -44,7 +45,9 @@ Map::Map(SDL_Renderer *renderer)
         for(int col=0;col<SCREEN_HEIGHT/TILE_SIZE;col++)
         {
             map[row][col] = vector_map[row][col];
+            cout << map[row][col];
         }
+        cout << endl;
     }
     
 }
