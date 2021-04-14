@@ -100,7 +100,7 @@ void Game::handleEvents()
 			newbullet->init(renderer);
 			all_bullets.push_back(newbullet);break;
     	} 
-		player1->destR = player1->valid_move(player1->destR,xmove,ymove);
+		player1->destR = player1->valid_move(player1->destR,xmove,ymove,maze);
 	}
 }
 

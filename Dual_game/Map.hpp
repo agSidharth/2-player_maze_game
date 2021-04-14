@@ -75,24 +75,27 @@ void Map::DrawMap(SDL_Renderer *renderer)
 
 pair<int,int> Map::init_pos(int xpos,int ypos,int parameter)
 {
-    int x = xpos;
-    int y = ypos;
-    int factor = 8;
-
-    while(map[xpos][y]==1 && map[x][ypos]==1)
+	for(int d=0;;d++)
     {
-        x+=parameter;
-        y+=parameter;
-
-        if(x<0 || y<0 || x>=SCREEN_WIDTH/TILE_SIZE || y>=SCREEN_HEIGHT/TILE_SIZE)
-        {
-            xpos+= parameter*(SCREEN_WIDTH/TILE_SIZE-1)/factor;
-            ypos+= parameter*(SCREEN_HEIGHT/TILE_SIZE-1)/factor;
-            x = xpos;
-            y = ypos;
-        }
+    	for(int xd = 0;xd <=d;xd++)
+    	{
+    		int yd = d-xd;
+    		if ((xpos+xd)>=0 && ((xpos+xd)< SCREEN_WIDTH/TILE_SIZE) && (ypos+yd)>=0 && (ypos+yd)< SCREEN_WIDTH/TILE_SIZE) 
+    		{
+    			if(map[xpos+xd][ypos+yd]==0) return make_pair((xpos+xd)*TILE_SIZE,(ypos+yd)*TILE_SIZE);
+    		}
+    		if ((xpos+xd)>=0 && ((xpos+xd)< SCREEN_WIDTH/TILE_SIZE) && (ypos-yd)>=0 && (ypos-yd)< SCREEN_WIDTH/TILE_SIZE) 
+    		{
+    			if(map[xpos+xd][ypos-yd]==0) return make_pair((xpos+xd)*TILE_SIZE,(ypos-yd)*TILE_SIZE);
+    		}
+    		if ((xpos-xd)>=0 && ((xpos-xd)< SCREEN_WIDTH/TILE_SIZE) && (ypos+yd)>=0 && (ypos+yd)< SCREEN_WIDTH/TILE_SIZE) 
+    		{
+    			if(map[xpos-xd][ypos+yd]==0) return make_pair((xpos-xd)*TILE_SIZE,(ypos+yd)*TILE_SIZE);
+    		}
+    		if ((xpos-xd)>=0 && ((xpos-xd)< SCREEN_WIDTH/TILE_SIZE) && (ypos-yd)>=0 && (ypos-yd)< SCREEN_WIDTH/TILE_SIZE) 
+    		{
+    			if(map[xpos-xd][ypos-yd]==0) return make_pair((xpos-xd)*TILE_SIZE,(ypos-yd)*TILE_SIZE);
+    		}
+    	}
     }
-    if(map[xpos][y]==0) return make_pair(xpos*TILE_SIZE,y*TILE_SIZE);
-    return make_pair(x*TILE_SIZE,ypos*TILE_SIZE);
-
 }
