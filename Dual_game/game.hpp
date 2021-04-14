@@ -110,7 +110,7 @@ void Game::update()
 	int total_bullets = all_bullets.size();
 	while(i<all_bullets.size())
 	{
-		if(all_bullets[i]->move() == false)
+		if(all_bullets[i]->move(maze->map) == false)
 		{
 			auto it = all_bullets.begin();
 			all_bullets.pop_front();

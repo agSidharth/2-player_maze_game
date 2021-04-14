@@ -11,7 +11,8 @@ public:
 	bullet(int x,int y,int dir);
 	
 	void init(SDL_Renderer *renderer);
-	bool move();
+	bool safe_move(int xpos,int ypos,int type,int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE]);
+	bool move(int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE]);
 
 	SDL_Texture* bulletTex;
 	SDL_Rect destR;
@@ -40,24 +41,35 @@ void bullet::init(SDL_Renderer *renderer)
 	SDL_FreeSurface(tmpSurface);
 }
 
-bool bullet::move()
+bool bullet::safe_move(int xpos,int ypos,int type,int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE])
+{
+	if(xpos<0 || xpos+BULLET_SIZE>SCREEN_WIDTH || ypos<0 || ypos+BULLET_SIZE>SCREEN_HEIGHT) return false;
+
+	bool check = (map[(xpos)/TILE_SIZE][(ypos)/TILE_SIZE]!=type) && (map[(xpos+BULLET_SIZE)/TILE_SIZE][(ypos)/TILE_SIZE]!=type);
+	check = (map[(xpos)/TILE_SIZE][(ypos+BULLET_SIZE)/TILE_SIZE]!=type) && (map[(xpos+BULLET_SIZE)/TILE_SIZE][(ypos+BULLET_SIZE)/TILE_SIZE]!=type);
+	return check;
+}
+
+bool bullet::move(int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE])
 {
 	if(pathlen >= 2000) return false;
+	int xpos,ypos;
+
 	switch(direction)
 	{
-		case 0: 
-		if(destR.y<distance) direction = 2;
-		destR.y = abs(destR.y - distance); break;
-		case 1:
-		if(destR.x+BULLET_SIZE+distance>SCREEN_WIDTH) direction = 3;
-		destR.x = SCREEN_WIDTH - BULLET_SIZE - abs(destR.x+distance+BULLET_SIZE-SCREEN_WIDTH);break;
-		case 2:
-		if(destR.y+BULLET_SIZE+distance>SCREEN_HEIGHT) direction = 0;
-		destR.y = SCREEN_HEIGHT - BULLET_SIZE - abs(destR.y+BULLET_SIZE+distance-SCREEN_HEIGHT);break;
-		case 3:
-		if(destR.x<distance) direction = 1;
-		destR.x = abs(destR.x - distance);break;		
+		case 0: xpos = destR.x; ypos = destR.y-distance;break;
+		case 1: xpos = destR.x+distance; ypos = destR.y;break;
+		case 2: xpos = destR.x; ypos = destR.y + distance;break;
+		case 3: xpos = destR.x-distance; ypos = destR.y;break;
 	}
+
+	if(safe_move(xpos,ypos,1,map))
+	{destR.x = xpos; destR.y = ypos;}
+	else if(direction==0) direction = 2;
+	else if(direction==1) direction = 3;
+	else if(direction==2) direction = 0;
+	else if(direction==3) direction = 1;
+
 	pathlen += distance;
 	return true;
 }
