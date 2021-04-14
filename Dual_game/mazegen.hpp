@@ -48,7 +48,7 @@ void Maze::init(int x)
 			vector<int> temp(b,1);
 			M.push_back(temp);
 		}
-		srand(x);		
+		srand(time(NULL));		
 	}
 
 void Maze::create(int x,int y)
@@ -62,7 +62,15 @@ void Maze::create(int x,int y)
 			{
 				if(y>1)
 				{
-					if(M[x][y-1]&&M[x][y-2])
+					int k = rand()%12;
+					if(k==0)
+					{
+						if(M[x][y-1])
+						{
+							M[x][y-1] = 0;
+						}
+					}
+					else if(M[x][y-1]&&M[x][y-2])
 					{
 						M[x][y-1] = 0;
 						create(x,y-2);
@@ -73,7 +81,15 @@ void Maze::create(int x,int y)
 			{
 				if(x<a-2)
 				{
-					if(M[x+1][y]&&M[x+2][y])
+					int k = rand()%12;
+					if(k==0)
+					{
+						if(M[x+1][y])
+						{
+							M[x+1][y] = 0;
+						}
+					}
+					else if(M[x+1][y]&&M[x+2][y])
 					{
 						M[x+1][y] = 0;
 						create(x+2,y);
@@ -84,7 +100,15 @@ void Maze::create(int x,int y)
 			{
 				if(y<b-2)
 				{
-					if(M[x][y+1]&&M[x][y+2])
+					int k = rand()%12;
+					if(k==0)
+					{
+						if(M[x][y+1])
+						{
+							M[x][y+1] = 0;
+						}
+					}
+					else if(M[x][y+1]&&M[x][y+2])
 					{
 						M[x][y+1] = 0;
 						create(x,y+2);
@@ -95,23 +119,20 @@ void Maze::create(int x,int y)
 			{
 				if(x>1)
 				{
-					if(M[x-1][y]&&M[x-2][y])
+					int k = rand()%12;
+					if(k==0)
+					{
+						if(M[x-1][y])
+						{
+							M[x-1][y] = 0;
+						}
+					}
+					else if(M[x-1][y]&&M[x-2][y])
 					{
 						M[x-1][y] = 0;
 						create(x-2,y);
 					}
 				}
 			}
-		}
-		if(x==0&&y==0)
-		{
-			for(int i=0;i<a;i++)
-		{
-			for(int j=0;j<b;j++)
-			{
-				cout << M[i][j];
-			}
-			cout << endl;
-		}
 		}
 	}

@@ -3,10 +3,12 @@ const int SCREEN_HEIGHT = 750;
 const int PLAYER_SIZE = 40;
 const int TILE_SIZE = 50;
 const int BULLET_SIZE = 20;
+const int COIN_SIZE = 15;
 const int NORTH = 0;
 const int EAST = 1;
 const int SOUTH = 2;
 const int WEST = 3;
+int TIME = 0;
 
 #include <iostream>
 #include <SDL2/SDL.h>
@@ -30,7 +32,8 @@ int main()
 		game->init("Dual",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT);
 
 		while(game->running())
-		{
+		{	
+			TIME++;
 			frameStart = SDL_GetTicks();
 
 			game->handleEvents();

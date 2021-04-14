@@ -35,7 +35,7 @@ Map::Map(SDL_Renderer *renderer)
 
     Maze* matrix = new Maze(SCREEN_WIDTH/TILE_SIZE,SCREEN_HEIGHT/TILE_SIZE);
     cout << "HI";
-    matrix -> init(43);
+    matrix -> init(34);
     
     matrix -> create(0,0);
     vector<vector<int>> vector_map = matrix->M;

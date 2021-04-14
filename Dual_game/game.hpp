@@ -32,7 +32,7 @@ public:
 	player *player1 = nullptr;
 	player *player2 = nullptr;
 	Map* maze = nullptr;
-	vector<bullet*> all_bullets;
+	deque<bullet*> all_bullets;
 };
 
 
@@ -113,7 +113,7 @@ void Game::update()
 		if(all_bullets[i]->move() == false)
 		{
 			auto it = all_bullets.begin();
-			all_bullets.erase(it);
+			all_bullets.pop_front();
 			continue;
 		}
 		i++;
