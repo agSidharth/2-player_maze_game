@@ -29,7 +29,7 @@ Tile::Tile(int x,int y)
 
 void Tile::init(SDL_Renderer* renderer)
 {
-    string path = "./resources/tile.png";
+    string path = "./resources/brick.png";
 	const char* path_array = path.c_str();
 
 	SDL_Surface* tmpSurface = IMG_Load(path_array);

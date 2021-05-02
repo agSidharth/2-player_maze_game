@@ -91,10 +91,10 @@ void Game::handleEvents()
     {
 		switch (event.key.keysym.sym)
     	{
-        	case SDLK_LEFT: 	xmove = -4;player1->playerDir = 3;break;
-        	case SDLK_RIGHT: 	xmove = 4; player1->playerDir = 1;break;
-        	case SDLK_UP:    	ymove = -4; player1->playerDir = 0; break;
-        	case SDLK_DOWN:  	ymove = 4; player1->playerDir = 2; break;
+        	case SDLK_LEFT: 	xmove = -7;player1->playerDir = 3;break;
+        	case SDLK_RIGHT: 	xmove = 7; player1->playerDir = 1;break;
+        	case SDLK_UP:    	ymove = -7; player1->playerDir = 0; break;
+        	case SDLK_DOWN:  	ymove = 7; player1->playerDir = 2; break;
 			case SDLK_s: 		
 			bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->playerDir);
 			newbullet->init(renderer);
