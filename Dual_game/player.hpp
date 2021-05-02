@@ -8,7 +8,7 @@ class player
 {
 public:
 
-	player(int x,int y);
+	player(int x,int y,int z,int w);
 
 	void init(SDL_Renderer *renderer,string path);						//initialize the player
 
@@ -21,8 +21,12 @@ public:
 	bool spendcoins(int);				//decrease coins
 
 	void touch(Map* maze,int type);
+
+	void ForScore(TTF_Font* Font,SDL_Renderer *renderer,string intro);
+
 	SDL_Texture* playerTex;
-	SDL_Rect destR;
+	SDL_Texture* scoreTex;
+	SDL_Rect destR,scoreR;
 
 	int coins = 2;
 	int health = 100;
@@ -30,14 +34,30 @@ public:
 	int playerDir = 0; 			//initial direction is stored at NORTH
 };
 
-player::player(int x,int y)
+player::player(int x,int y,int score_x,int score_y)
 {
 	destR.w = PLAYER_SIZE;
 	destR.h = PLAYER_SIZE;
 	destR.x = x;
 	destR.y = y;
+
+	scoreR.x = score_x;
+	scoreR.y = score_y;
+	coins = 2;
+	health = 100;
 }
 
+void player::ForScore(TTF_Font* Font,SDL_Renderer *renderer,string intro)
+{
+	SDL_Color Black= {0,0,0,255};
+
+	intro =  intro + to_string(coins);
+	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Font, intro.c_str(), Black);
+	scoreTex = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+	SDL_FreeSurface(surfaceMessage);
+
+	SDL_QueryTexture(scoreTex,nullptr,nullptr,&scoreR.w,&scoreR.h);
+}
 void player::init(SDL_Renderer *renderer,string path)
 {
 	const char* path_array = path.c_str();

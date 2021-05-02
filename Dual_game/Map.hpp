@@ -82,7 +82,7 @@ void Map::DrawMap(SDL_Renderer *renderer)
             ypos = col*TILE_SIZE;
             if(type == 0)
             {
-            	int k = rand()%80000;
+            	int k = rand()%160000;
             	if(k==0) map[row][col] = 2;
             }
             switch(type)
