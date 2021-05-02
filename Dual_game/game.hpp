@@ -63,7 +63,7 @@ void Game::init(char* title,int xpos,int ypos,int width,int height)
 		isRunning = false;
 	}
 
-	SDL_SetRenderDrawColor(renderer,192,192,192,255);
+	SDL_SetRenderDrawColor(renderer,128,128,128,255);
 	maze = new Map(renderer);
 
 	//for correct initialization of location of players.
@@ -117,19 +117,22 @@ void Game::handleEvents()
 	int ymove = 0;
 
 	if(event.type==SDL_QUIT) isRunning = false;
-	else	
+	else if(event.type == SDL_KEYDOWN)	
     {
 		switch (event.key.keysym.sym)
     	{
+			case SDLK_ESCAPE:	isRunning = false;
         	case SDLK_LEFT: 	xmove = -7;player1->playerDir = 3;break;
         	case SDLK_RIGHT: 	xmove = 7; player1->playerDir = 1;break;
         	case SDLK_UP:    	ymove = -7; player1->playerDir = 0; break;
         	case SDLK_DOWN:  	ymove = 7; player1->playerDir = 2; break;
-			case SDLK_v:		player1->destR = player1->teleport(player1->destR,maze); break;
-			case SDLK_s: 		
-			bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->playerDir);
-			newbullet->init(renderer);
-			all_bullets.push_back(newbullet);break;
+			case SDLK_v:		if(event.key.repeat==0)
+								{player1->destR = player1->teleport(player1->destR,maze);} break;
+			case SDLK_s: 		if(event.key.repeat==0)	
+								{bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->playerDir);
+			 					newbullet->init(renderer);
+								all_bullets.push_back(newbullet);}
+								break;
 		} 
 		player1->destR = player1->valid_move(player1->destR,xmove,ymove,maze->map);
 	}
@@ -137,11 +140,14 @@ void Game::handleEvents()
 
 void Game::update()
 {
+	player1->touch(maze,2);			//2 for coins
+	player2->touch(maze,2);
+
 	int i=0;
 	int total_bullets = all_bullets.size();
 	while(i<all_bullets.size())
 	{
-		if(all_bullets[i]->move(maze->map) == false)
+		if(all_bullets[i]->move(maze->map,player1,player2) == false)
 		{
 			auto it = all_bullets.begin();
 			all_bullets.pop_front();
@@ -149,6 +155,16 @@ void Game::update()
 		}
 		i++;
 	}
+
+	if(player1->health==0)
+	{
+		isRunning = false;
+	}
+	else if(player2->health==0)
+	{
+		isRunning = false;
+	}
+
 }
 void Game::render()
 {

@@ -50,9 +50,9 @@ int main()
 		}
 		game->clean();
 
-		PLAY_AGAIN = 'n';
-		//cout << "Want to play again  (y/n)"<<endl;
-		//cin >> PLAY_AGAIN;
+		//PLAY_AGAIN = 'n';
+		cout << "Want to play again  (y/n)"<<endl;
+		cin >> PLAY_AGAIN;
 	}
 	return 0;
 }

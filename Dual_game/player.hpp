@@ -20,10 +20,11 @@ public:
 
 	bool spendcoins(int);				//decrease coins
 
+	void touch(Map* maze,int type);
 	SDL_Texture* playerTex;
 	SDL_Rect destR;
 
-	int coins = 5;
+	int coins = 2;
 	int health = 100;
 
 	int playerDir = 0; 			//initial direction is stored at NORTH
@@ -95,4 +96,32 @@ bool player::spendcoins(int x)
 	}
 	else
 		return false;
+}
+
+void player::touch(Map* maze,int type)		//(3*PLAYER_SIZE)/4 to for much more efficient touc
+{
+	int xpos = destR.x;
+	int ypos = destR.y;
+
+	if(maze->map[xpos/TILE_SIZE][ypos/TILE_SIZE]==type)
+	{
+		maze->map[xpos/TILE_SIZE][ypos/TILE_SIZE] = 0; 
+		coins++;
+	}
+	else if(maze->map[xpos+((3*PLAYER_SIZE)/4)/TILE_SIZE][ypos/TILE_SIZE]==type)
+	{
+		maze->map[xpos+((3*PLAYER_SIZE)/4)/TILE_SIZE][ypos/TILE_SIZE] = 0; 
+		coins++;
+	}
+	else if(maze->map[xpos/TILE_SIZE][ypos+((3*PLAYER_SIZE)/4)/TILE_SIZE]==type)
+	{
+		maze->map[xpos/TILE_SIZE][ypos+((3*PLAYER_SIZE)/4)/TILE_SIZE] = 0;
+		coins++;	
+	}
+	else if(maze->map[xpos+((3*PLAYER_SIZE)/4)/TILE_SIZE][ypos+((3*PLAYER_SIZE)/4)/TILE_SIZE]==type)
+	{
+		maze->map[xpos+((3*PLAYER_SIZE)/4)/TILE_SIZE][ypos+((3*PLAYER_SIZE)/4)/TILE_SIZE] = 0;
+		coins++;
+	}
+	return ;
 }

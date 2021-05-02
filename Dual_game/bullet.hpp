@@ -2,6 +2,7 @@
 #include<bits/stdc++.h>
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_image.h>
+#include "player.hpp"
 using namespace std;
 
 class bullet
@@ -12,7 +13,7 @@ public:
 	
 	void init(SDL_Renderer *renderer);
 	bool safe_move(int xpos,int ypos,int type,int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE]);
-	bool move(int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE]);
+	bool move(int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE],player* player1,player* player2);
 
 	SDL_Texture* bulletTex;
 	SDL_Rect destR;
@@ -26,8 +27,13 @@ bullet::bullet(int x,int y,int dir)
 {
 	destR.w = BULLET_SIZE;
 	destR.h = BULLET_SIZE;
-	destR.x = x;
-	destR.y = y;
+	switch (dir)
+	{
+		case 0:	destR.x = x; destR.y = y - TILE_SIZE; break;
+		case 1: destR.x = x + TILE_SIZE; destR.y = y; break;
+		case 2: destR.x = x; destR.y = y + TILE_SIZE; break;
+		case 3: destR.x = x - TILE_SIZE; destR.y = y; break;
+	}
 	direction = dir;
 }
 
@@ -50,8 +56,19 @@ bool bullet::safe_move(int xpos,int ypos,int type,int map[SCREEN_WIDTH/TILE_SIZE
 	return check;
 }
 
-bool bullet::move(int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE])
+bool bullet::move(int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE],player* player1,player* player2)
 {
+	if(SDL_HasIntersection(&destR,&(player1->destR))==SDL_TRUE)
+	{
+		player1->health = 0;
+		return false;
+	}
+	else if(SDL_HasIntersection(&destR,&(player2->destR))==SDL_TRUE)
+	{
+		player2->health = 0;
+		return false;
+	}
+
 	if(pathlen >= 2000) return false;
 	int xpos,ypos;
 
