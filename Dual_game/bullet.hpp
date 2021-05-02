@@ -14,6 +14,7 @@ public:
 	void init(SDL_Renderer *renderer);
 	bool safe_move(int xpos,int ypos,int type,int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE]);
 	bool move(int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE],player* player1,player* player2);
+	void clear();
 
 	SDL_Texture* bulletTex;
 	SDL_Rect destR;
@@ -22,6 +23,11 @@ public:
 	int direction; 
 	int distance = 8;		//distance moved in single iteration.				
 };
+
+void bullet::clear()
+{
+	bulletTex = nullptr;
+}
 
 bullet::bullet(int x,int y,int dir)
 {

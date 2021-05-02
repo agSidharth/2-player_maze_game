@@ -17,6 +17,8 @@ public:
 
     void DrawMap(SDL_Renderer *renderer);
 
+    void clean();
+
     pair<int,int> init_pos(int xpos,int ypos,int parameter);
 
     SDL_Rect srcR;
@@ -27,6 +29,16 @@ public:
     SDL_Rect first_vent,second_vent;
     int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE];
 };
+
+void Map::clean()
+{
+    tile->clean();
+    tile = nullptr;
+    coin->clean();
+    coin = nullptr;
+    vent->clean();
+    vent = nullptr;
+}
 
 Map::Map(SDL_Renderer *renderer)
 {

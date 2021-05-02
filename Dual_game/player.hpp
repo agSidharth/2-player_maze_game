@@ -24,15 +24,26 @@ public:
 
 	void ForScore(TTF_Font* Font,SDL_Renderer *renderer,string intro);
 
+	void clean();
+
 	SDL_Texture* playerTex;
 	SDL_Texture* scoreTex;
 	SDL_Rect destR,scoreR;
 
+	int distance = 5;
 	int coins = 2;
 	int health = 100;
 
 	int playerDir = -1; 			//initial direction is stored as NULL
+	int lastDir   = -1;				//last direction needed for bullet
+
 };
+
+void player::clean()
+{
+	playerTex = nullptr;
+	scoreTex = nullptr;
+}
 
 player::player(int x,int y,int score_x,int score_y)
 {
@@ -85,6 +96,12 @@ SDL_Rect player::valid_move(SDL_Rect box,int xmove,int ymove,int map[SCREEN_WIDT
 			temp.y = box.y + ymove;
 		}
 	}
+
+	if(xmove==distance || ymove==distance)
+	{
+		valid_move(box,xmove/2,ymove/2,map);
+	}
+
 	return temp;
 }
 

@@ -14,9 +14,16 @@ class Vent
 
     void draw(SDL_Renderer* renderer,SDL_Rect srcR,int xpos,int ypos);
 
+    void clean();
+
     SDL_Rect destR;
     SDL_Texture* ventTex;
 };
+
+void Vent::clean()
+{
+    ventTex = nullptr;
+}
 
 Vent::Vent(int x,int y)
 {

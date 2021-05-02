@@ -141,6 +141,7 @@ void Game::handleEvents()
 	SDL_PollEvent(&event);
 	int xmove = 0;
 	int ymove = 0;
+	int dis = (player1->distance);
 
 	if(event.type==SDL_QUIT) isRunning = false;
 	
@@ -150,14 +151,14 @@ void Game::handleEvents()
 		switch (event.key.keysym.sym)
     	{
 			case SDLK_ESCAPE:	isRunning = false;
-        	case SDLK_LEFT: 	player1->playerDir = 3;break;
-        	case SDLK_RIGHT: 	player1->playerDir = 1;break;
-        	case SDLK_UP:    	player1->playerDir = 0; break;
-        	case SDLK_DOWN:  	player1->playerDir = 2; break;
+        	case SDLK_LEFT: 	player1->playerDir = 3;player1->lastDir=player1->playerDir;break;
+        	case SDLK_RIGHT: 	player1->playerDir = 1;player1->lastDir=player1->playerDir;break;
+        	case SDLK_UP:    	player1->playerDir = 0;player1->lastDir=player1->playerDir;break;
+        	case SDLK_DOWN:  	player1->playerDir = 2;player1->lastDir=player1->playerDir;break;
 			case SDLK_v:		if(event.key.repeat==0)
 								{player1->destR = player1->teleport(player1->destR,maze);} break;
 			case SDLK_s: 		if((player1->coins)>0)	
-								{bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->playerDir);
+								{bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->lastDir);
 			 					newbullet->init(renderer);
 								all_bullets.push_back(newbullet);
 								player1->coins--;}
@@ -170,14 +171,14 @@ void Game::handleEvents()
 		key_pressed--;
 		if(key_pressed==0) player1->playerDir = -1;		//basically no movement.
 	}
-
+	
 	switch(player1->playerDir)
 	{
 		case -1:break;
-		case 0:ymove = -5;break;
-		case 1:xmove = 5;break;
-		case 2:ymove = 5;break;
-		case 3:xmove = -5;break;		
+		case 0:ymove = -1*dis;break;
+		case 1:xmove = dis;break;
+		case 2:ymove = dis;break;
+		case 3:xmove = -1*dis;break;		
 	}
 	player1->destR = player1->valid_move(player1->destR,xmove,ymove,maze->map);
 }
@@ -194,6 +195,7 @@ void Game::update()
 		if(all_bullets[i]->move(maze->map,player1,player2) == false)
 		{
 			auto it = all_bullets.begin();
+			(*it)->clear();
 			all_bullets.pop_front();
 			continue;
 		}
@@ -240,5 +242,18 @@ void Game::clean()
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
 	SDL_Quit();
+
+	window = nullptr;
+	renderer = nullptr;
+	Message = nullptr;
+	Font = nullptr; 
+
+	player1->clean();
+	player1 = nullptr;
+	player2->clean();
+	player2 = nullptr;
+	maze->clean();
+	maze = nullptr;
+	
 	cout<<"GAME OVER"<<endl; 
 }

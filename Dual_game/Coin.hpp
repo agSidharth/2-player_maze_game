@@ -15,9 +15,16 @@ public:
 
     void draw(SDL_Renderer* renderer,SDL_Rect srcR,int xpos,int ypos);
 
+    void clean();
+    
     SDL_Rect destR;
     SDL_Texture* CoinTex;
 };
+
+void Coin::clean()
+{
+    CoinTex = nullptr;
+}
 
 Coin::Coin(int x,int y)
 {
