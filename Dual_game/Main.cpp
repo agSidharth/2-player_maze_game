@@ -1,7 +1,8 @@
 const int SCREEN_WIDTH = 1050;
 const int SCREEN_HEIGHT = 750;
+const int SCORE_HEIGHT = 70;
 const int PLAYER_SIZE = 30;
-const int TILE_SIZE = 50;
+const int TILE_SIZE = 50;				//better to have TILE_SIZE both factor of SCREEN_WIDTH and SCREEN_HEIGHT
 const int BULLET_SIZE = 20;
 const int COIN_SIZE = 25;
 const int NORTH = 0;
@@ -12,7 +13,9 @@ int TIME = 0;
 
 #include <iostream>
 #include <SDL2/SDL.h>
-#include "game.hpp"			//handles all the things on the screen
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include "game.hpp"						//handles all the things on the screen
 using namespace std;
 
 int main()

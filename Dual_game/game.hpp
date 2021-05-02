@@ -29,6 +29,12 @@ public:
 
 	SDL_Window *window = nullptr;
 	SDL_Renderer *renderer = nullptr;
+
+	SDL_Texture* Message;
+	SDL_Rect Message_rect;
+
+	TTF_Font* Font; 
+
 	player *player1 = nullptr;
 	player *player2 = nullptr;
 	Map* maze = nullptr;
@@ -47,7 +53,7 @@ void Game::init(char* title,int xpos,int ypos,int width,int height)
 	{
 		cout<<"The game has been initialised\n";
 	}
-	window = SDL_CreateWindow(title,xpos,ypos,width,height,0);
+	window = SDL_CreateWindow(title,xpos,ypos,width,height+SCORE_HEIGHT,0);
 
 	isRunning = true;
 	if(window==0)
@@ -62,8 +68,27 @@ void Game::init(char* title,int xpos,int ypos,int width,int height)
 		cout<<"Renderer has not been initialised";
 		isRunning = false;
 	}
-
 	SDL_SetRenderDrawColor(renderer,128,128,128,255);
+
+	//for text rendering.....
+	if(TTF_Init()==-1) cout<<"Error in loading ttf";
+	Font = TTF_OpenFont("./resources/font.ttf", 30);
+	SDL_Color Black = {0, 0, 0,255};
+	
+	string boundary;
+	for(int i=0;i<(SCREEN_WIDTH-3);i++)
+	{
+		boundary = boundary + "-";
+	}
+	
+	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Font, boundary.c_str(), Black);
+	Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+	SDL_FreeSurface(surfaceMessage);
+
+	Message_rect.x = 0;  
+	Message_rect.y = SCREEN_HEIGHT;
+	SDL_QueryTexture(Message,nullptr,nullptr,&Message_rect.w,&Message_rect.h);
+
 	maze = new Map(renderer);
 
 	//for correct initialization of location of players.
@@ -73,13 +98,13 @@ void Game::init(char* title,int xpos,int ypos,int width,int height)
 	int spawn_y = rand()%(SCREEN_HEIGHT/(TILE_SIZE*2)-1);
 	
 	pair<int,int> min_location = maze->init_pos(spawn_x,spawn_y,1);
-	player1 = new player(min_location.first,min_location.second);
+	player1 = new player(min_location.first,min_location.second,10,SCREEN_HEIGHT+20);
 
 	spawn_x = rand()%(SCREEN_WIDTH/(TILE_SIZE*2)-1) + SCREEN_WIDTH/(TILE_SIZE*2);
 	spawn_y = rand()%(SCREEN_HEIGHT/(TILE_SIZE*2)-1) + SCREEN_HEIGHT/(TILE_SIZE*2);
 
 	pair<int,int> max_location = maze->init_pos(spawn_x,spawn_y,-1);
-	player2 = new player(max_location.first,max_location.second);
+	player2 = new player(max_location.first,max_location.second,SCREEN_WIDTH-260,SCREEN_HEIGHT+20);
 	
 	string path1 = "resources/ghost1.png"; 
 	player1->init(renderer,path1);
@@ -128,10 +153,11 @@ void Game::handleEvents()
         	case SDLK_DOWN:  	ymove = 7; player1->playerDir = 2; break;
 			case SDLK_v:		if(event.key.repeat==0)
 								{player1->destR = player1->teleport(player1->destR,maze);} break;
-			case SDLK_s: 		if(event.key.repeat==0)	
+			case SDLK_s: 		if(event.key.repeat==0 && (player1->coins)>0)	
 								{bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->playerDir);
 			 					newbullet->init(renderer);
-								all_bullets.push_back(newbullet);}
+								all_bullets.push_back(newbullet);
+								player1->coins--;}
 								break;
 		} 
 		player1->destR = player1->valid_move(player1->destR,xmove,ymove,maze->map);
@@ -165,6 +191,8 @@ void Game::update()
 		isRunning = false;
 	}
 
+	player1->ForScore(Font,renderer,"PLAYER1 BULLETS : ");
+	player2->ForScore(Font,renderer,"PLAYER2 BULLETS : ");
 }
 void Game::render()
 {
@@ -172,6 +200,11 @@ void Game::render()
 	maze->DrawMap(renderer);
 	SDL_RenderCopy(renderer,player1->playerTex,NULL,&(player1->destR));
 	SDL_RenderCopy(renderer,player2->playerTex,NULL,&(player2->destR));
+	SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
+
+	//for text in scoreboard....
+	SDL_RenderCopy(renderer,player1->scoreTex,NULL,&(player1->scoreR));
+	SDL_RenderCopy(renderer,player2->scoreTex,NULL,&(player2->scoreR));
 
 	int i=0;
 	int total_bullets = all_bullets.size();
