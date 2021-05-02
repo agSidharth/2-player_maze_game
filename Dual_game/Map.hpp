@@ -5,6 +5,7 @@
 #include<SDL2/SDL_image.h>
 #include "Tile.hpp"
 #include "Coin.hpp"
+# include "Vent.hpp"
 #include "mazegen.hpp"
 using namespace std;
 
@@ -21,7 +22,9 @@ public:
     SDL_Rect srcR;
     Tile* tile = nullptr;
     Coin* coin = nullptr;
+    Vent* vent = nullptr;
 
+    SDL_Rect first_vent,second_vent;
     int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE];
 };
 
@@ -31,12 +34,20 @@ Map::Map(SDL_Renderer *renderer)
     tile->init(renderer);
     coin = new Coin(0,0);
     coin->init(renderer);
+    vent = new Vent(0,0);
+    vent->init(renderer);
 
     srcR.w = TILE_SIZE;
     srcR.h = TILE_SIZE;
     srcR.x = 0;
     srcR.y = 0;
 
+    first_vent.w = TILE_SIZE;
+    first_vent.h = TILE_SIZE;
+
+    second_vent.w = TILE_SIZE;
+    second_vent.h = TILE_SIZE;
+    
     Maze* matrix = new Maze(SCREEN_WIDTH/TILE_SIZE,SCREEN_HEIGHT/TILE_SIZE);
     cout << "HI";
     matrix -> init(34);
@@ -76,6 +87,8 @@ void Map::DrawMap(SDL_Renderer *renderer)
             }
             switch(type)
             {
+                case -1:
+                    vent->draw(renderer,srcR,xpos,ypos);break;
                 case 1:
                     tile->draw(renderer,srcR,xpos,ypos);break;
                 case 2:

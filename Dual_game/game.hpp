@@ -63,13 +63,22 @@ void Game::init(char* title,int xpos,int ypos,int width,int height)
 		isRunning = false;
 	}
 
+	SDL_SetRenderDrawColor(renderer,192,192,192,255);
 	maze = new Map(renderer);
 
 	//for correct initialization of location of players.
-	pair<int,int> min_location = maze->init_pos(0,0,1);
+
+	srand(time(0));												//for random and separate initialization.
+	int spawn_x = rand()%(SCREEN_WIDTH/(TILE_SIZE*2)-1);
+	int spawn_y = rand()%(SCREEN_HEIGHT/(TILE_SIZE*2)-1);
+	
+	pair<int,int> min_location = maze->init_pos(spawn_x,spawn_y,1);
 	player1 = new player(min_location.first,min_location.second);
 
-	pair<int,int> max_location = maze->init_pos(SCREEN_WIDTH/TILE_SIZE-1,SCREEN_HEIGHT/TILE_SIZE-1,-1);
+	spawn_x = rand()%(SCREEN_WIDTH/(TILE_SIZE*2)-1) + SCREEN_WIDTH/(TILE_SIZE*2);
+	spawn_y = rand()%(SCREEN_HEIGHT/(TILE_SIZE*2)-1) + SCREEN_HEIGHT/(TILE_SIZE*2);
+
+	pair<int,int> max_location = maze->init_pos(spawn_x,spawn_y,-1);
 	player2 = new player(max_location.first,max_location.second);
 	
 	string path1 = "resources/ghost1.png"; 
@@ -77,6 +86,27 @@ void Game::init(char* title,int xpos,int ypos,int width,int height)
 
 	string path2 = "resources/ghost2.png";
 	player2->init(renderer,path2);	
+
+	
+	//initialization of vent.
+	spawn_x = rand()%(SCREEN_WIDTH/(TILE_SIZE*2)-1);
+	spawn_y = rand()%(SCREEN_HEIGHT/(TILE_SIZE*2)-1) + SCREEN_HEIGHT/(TILE_SIZE*2);
+
+	pair<int,int> first_vent_pos,second_vent_pos;
+	first_vent_pos = maze->init_pos(spawn_x,spawn_y,1);
+	maze->map[first_vent_pos.first/(TILE_SIZE)][first_vent_pos.second/TILE_SIZE] = -1;
+
+	maze->first_vent.x = first_vent_pos.first;
+	maze->first_vent.y = first_vent_pos.second;
+
+	spawn_x = rand()%(SCREEN_WIDTH/(TILE_SIZE*2)-1) + SCREEN_WIDTH/(TILE_SIZE*2);
+	spawn_y = rand()%(SCREEN_HEIGHT/(TILE_SIZE*2)-1);
+
+	second_vent_pos = maze->init_pos(spawn_x,spawn_y,-1);
+	maze->map[second_vent_pos.first/TILE_SIZE][second_vent_pos.second/TILE_SIZE] = -1;
+	
+	maze->second_vent.x = second_vent_pos.first;
+	maze->second_vent.y = second_vent_pos.second;	
 }
 
 void Game::handleEvents()
@@ -95,11 +125,12 @@ void Game::handleEvents()
         	case SDLK_RIGHT: 	xmove = 7; player1->playerDir = 1;break;
         	case SDLK_UP:    	ymove = -7; player1->playerDir = 0; break;
         	case SDLK_DOWN:  	ymove = 7; player1->playerDir = 2; break;
+			case SDLK_v:		player1->destR = player1->teleport(player1->destR,maze); break;
 			case SDLK_s: 		
 			bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->playerDir);
 			newbullet->init(renderer);
 			all_bullets.push_back(newbullet);break;
-    	} 
+		} 
 		player1->destR = player1->valid_move(player1->destR,xmove,ymove,maze->map);
 	}
 }

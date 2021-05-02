@@ -5,21 +5,20 @@
 #include<SDL2/SDL_image.h>
 using namespace std;
 
-class  Tile
+class Vent
 {
-public:
+    public:
 
-    Tile(int x,int y);
-
+    Vent(int x,int y);
     void init(SDL_Renderer* renderer);
 
     void draw(SDL_Renderer* renderer,SDL_Rect srcR,int xpos,int ypos);
 
     SDL_Rect destR;
-    SDL_Texture* tileTex;
+    SDL_Texture* ventTex;
 };
 
-Tile::Tile(int x,int y)
+Vent::Vent(int x,int y)
 {
     destR.x = x;
     destR.y = y;
@@ -27,19 +26,19 @@ Tile::Tile(int x,int y)
     destR.h = TILE_SIZE;
 }
 
-void Tile::init(SDL_Renderer* renderer)
+void Vent::init(SDL_Renderer* renderer)
 {
-    string path = "./resources/tile.png";
+    string path = "./resources/vent.png";
 	const char* path_array = path.c_str();
 
 	SDL_Surface* tmpSurface = IMG_Load(path_array);
-	tileTex = SDL_CreateTextureFromSurface(renderer,tmpSurface);
+	ventTex = SDL_CreateTextureFromSurface(renderer,tmpSurface);
 	SDL_FreeSurface(tmpSurface);
 }
 
-void Tile::draw(SDL_Renderer* renderer,SDL_Rect srcR,int xpos,int ypos)
+void Vent::draw(SDL_Renderer* renderer,SDL_Rect srcR,int xpos,int ypos)
 {
     destR.x = xpos;
     destR.y = ypos;
-    SDL_RenderCopy(renderer,tileTex,NULL,&(destR));
+    SDL_RenderCopy(renderer,ventTex,NULL,&(destR));
 }

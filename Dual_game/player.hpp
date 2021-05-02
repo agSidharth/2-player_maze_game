@@ -14,6 +14,8 @@ public:
 
 	SDL_Rect valid_move(SDL_Rect box,int xmove,int ymove,int maze[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE]);
 
+	SDL_Rect teleport(SDL_Rect box,Map* maze);
+
 	void incoins(int x=1) {coins+=x;}	//increase coins by x(or 1 if not provided)
 
 	bool spendcoins(int);				//decrease coins
@@ -51,10 +53,10 @@ SDL_Rect player::valid_move(SDL_Rect box,int xmove,int ymove,int map[SCREEN_WIDT
 	SDL_Rect temp = box;
 	if(check)
 	{
-		check = check && (map[(box.x+xmove)/TILE_SIZE][(box.y+ymove)/TILE_SIZE]%2==0); 
-		check = check && (map[(box.x+xmove+PLAYER_SIZE)/TILE_SIZE][(box.y+ymove+PLAYER_SIZE)/TILE_SIZE]%2==0);
-		check = check && (map[(box.x+xmove+PLAYER_SIZE)/TILE_SIZE][(box.y+ymove)/TILE_SIZE]%2==0); 
-		check = check && (map[(box.x+xmove)/TILE_SIZE][(box.y+ymove+PLAYER_SIZE)/TILE_SIZE]%2==0);
+		check = check && (map[(box.x+xmove)/TILE_SIZE][(box.y+ymove)/TILE_SIZE]%2!=1); 
+		check = check && (map[(box.x+xmove+PLAYER_SIZE)/TILE_SIZE][(box.y+ymove+PLAYER_SIZE)/TILE_SIZE]%2!=1);
+		check = check && (map[(box.x+xmove+PLAYER_SIZE)/TILE_SIZE][(box.y+ymove)/TILE_SIZE]%2!=1); 
+		check = check && (map[(box.x+xmove)/TILE_SIZE][(box.y+ymove+PLAYER_SIZE)/TILE_SIZE]%2!=1);
 
 		if(check)
 		{
@@ -63,6 +65,25 @@ SDL_Rect player::valid_move(SDL_Rect box,int xmove,int ymove,int map[SCREEN_WIDT
 		}
 	}
 	return temp;
+}
+
+SDL_Rect player::teleport(SDL_Rect box,Map* maze)
+{
+	SDL_Rect temp_vent = maze->first_vent;
+	if(SDL_HasIntersection(&temp_vent,&box)==SDL_TRUE)
+	{
+		box.x = maze->second_vent.x;
+		box.y = maze->second_vent.y;
+		return box;
+	}
+	temp_vent = maze->second_vent;
+	if(SDL_HasIntersection(&temp_vent,&box)==SDL_TRUE)
+	{
+		box.x = maze->first_vent.x;
+		box.y = maze->first_vent.y;
+		return box;
+	}
+	return box;
 }
 
 bool player::spendcoins(int x)
