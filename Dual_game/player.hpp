@@ -31,7 +31,7 @@ public:
 	int coins = 2;
 	int health = 100;
 
-	int playerDir = 0; 			//initial direction is stored at NORTH
+	int playerDir = -1; 			//initial direction is stored as NULL
 };
 
 player::player(int x,int y,int score_x,int score_y)

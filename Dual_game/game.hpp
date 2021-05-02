@@ -19,13 +19,14 @@ public:
 
 	void update();
 
-	void render();			//Change the screen being rendered and updates it.
+	void render();				//Change the screen being rendered and updates it.
 
-	void clean();			//Once the game is over destroys the screen and renderer
+	void clean();				//Once the game is over destroys the screen and renderer
 
 	bool running() {return isRunning;}
 
 	bool isRunning = false;
+	int key_pressed = 0;		//number of key pressed.
 
 	SDL_Window *window = nullptr;
 	SDL_Renderer *renderer = nullptr;
@@ -142,26 +143,43 @@ void Game::handleEvents()
 	int ymove = 0;
 
 	if(event.type==SDL_QUIT) isRunning = false;
-	else if(event.type == SDL_KEYDOWN)	
+	
+	if(event.type == SDL_KEYDOWN && event.key.repeat==0)	
     {
+		key_pressed++;
 		switch (event.key.keysym.sym)
     	{
 			case SDLK_ESCAPE:	isRunning = false;
-        	case SDLK_LEFT: 	xmove = -7;player1->playerDir = 3;break;
-        	case SDLK_RIGHT: 	xmove = 7; player1->playerDir = 1;break;
-        	case SDLK_UP:    	ymove = -7; player1->playerDir = 0; break;
-        	case SDLK_DOWN:  	ymove = 7; player1->playerDir = 2; break;
+        	case SDLK_LEFT: 	player1->playerDir = 3;break;
+        	case SDLK_RIGHT: 	player1->playerDir = 1;break;
+        	case SDLK_UP:    	player1->playerDir = 0; break;
+        	case SDLK_DOWN:  	player1->playerDir = 2; break;
 			case SDLK_v:		if(event.key.repeat==0)
 								{player1->destR = player1->teleport(player1->destR,maze);} break;
-			case SDLK_s: 		if(event.key.repeat==0 && (player1->coins)>0)	
+			case SDLK_s: 		if((player1->coins)>0)	
 								{bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->playerDir);
 			 					newbullet->init(renderer);
 								all_bullets.push_back(newbullet);
 								player1->coins--;}
 								break;
-		} 
-		player1->destR = player1->valid_move(player1->destR,xmove,ymove,maze->map);
+		}
 	}
+	
+	if(event.type==SDL_KEYUP && event.key.repeat==0)
+	{
+		key_pressed--;
+		if(key_pressed==0) player1->playerDir = -1;		//basically no movement.
+	}
+
+	switch(player1->playerDir)
+	{
+		case -1:break;
+		case 0:ymove = -5;break;
+		case 1:xmove = 5;break;
+		case 2:ymove = 5;break;
+		case 3:xmove = -5;break;		
+	}
+	player1->destR = player1->valid_move(player1->destR,xmove,ymove,maze->map);
 }
 
 void Game::update()

@@ -20,7 +20,7 @@ public:
 	
 	int pathlen = 0;			//stores total pathlength covered till now, bullet can go finite distances only..
 	int direction; 
-	int distance = 10;		//distance moved in single iteration.				
+	int distance = 8;		//distance moved in single iteration.				
 };
 
 bullet::bullet(int x,int y,int dir)
