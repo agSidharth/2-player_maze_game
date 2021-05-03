@@ -40,6 +40,8 @@ int main()
 			frameStart = SDL_GetTicks();
 
 			game->handleEvents();
+			//send save_events[] to 
+			//changes due to recieve of events.
 			game->update();
 			game->render();
 
