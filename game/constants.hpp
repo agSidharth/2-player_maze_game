@@ -13,3 +13,9 @@ const int MAX_PLAYERS = 2;
 const int BUF_MAX = 256;
 const int FRAME_TIME = 16666;
 int TIME = 0;
+
+int FPS = 60;
+int frameDelay = 1000/FPS;
+
+int frameStart;
+int frameTime,difference;

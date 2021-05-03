@@ -19,9 +19,9 @@ public:
 
 	void handleEventsforClient();	
 
-	void eventsFromClient();
+	void eventsFromClient(int16_t array[]);
 
-	void eventsFromSerer();
+	void eventsFromSerer(int16_t array[]);
 
 	void update();
 
@@ -34,7 +34,7 @@ public:
 	bool isRunning = false;
 	int key_pressed = 0;		//number of key pressed.
 
-	int16_t send_event = [6];
+	int16_t send_event = [6];	
 	
 	SDL_Window *window = nullptr;
 	SDL_Renderer *renderer = nullptr;
@@ -49,7 +49,6 @@ public:
 	Map* maze = nullptr;
 	deque<bullet*> all_bullets;
 };
-
 
 Game::Game()
 {
@@ -147,7 +146,7 @@ void Game::handleEventsforServer()
 	send_event[2] = -1;		//stores xpos of bullet if generated.
 	send_event[3] = -1;		//stores ypos of bullet if generated
 	send_event[4] = -1;		//stores direction of bullet if generated.
-	//send_event[5] = -1;		//stores health of bullet if generated..
+	send_event[5] = player1->health; //for termination of client.	
 
 	SDL_Event event;
 	SDL_PollEvent(&event);
@@ -201,17 +200,22 @@ void Game::handleEventsforServer()
 	send_event[1] = player1->destR.y;
 }
 
-void Game::eventsFromClient()
+void Game::eventsFromClient(int array[])
 {
-	player2->destR.x = send_event[0];
-	player2->destR.y = send_event[1];
+	player2->destR.x = array[0];
+	player2->destR.y = array[1];
 
-	if(send_event[2]!=-1)
+	if(array[2]!=-1)				//has a bullet been shot...
 	{
-		bullet* newbullet = new bullet(int(send_event[2]),int(send_event[3]),int(send_event[4]));
+		bullet* newbullet = new bullet(int(array[2]),int(array[3]),int(array[4]));
 		newbullet->init(renderer);
 		all_bullets.push_back(newbullet);
 		player2->coins--;	
+	}
+
+	if(array[5]==0)
+	{
+		isRunning = false;
 	}
 }
 void Game::handleEventsforClient()
@@ -219,7 +223,7 @@ void Game::handleEventsforClient()
 	send_event[2] = -1;		//stores xpos of bullet if generated.
 	send_event[3] = -1;		//stores ypos of bullet if generated
 	send_event[4] = -1;		//stores direction of bullet if generated.
-	//send_event[5] = -1;		//stores health of bullet if generated..
+	send_event[5] = player2->health;	//needed for termination of server
 
 	SDL_Event event;
 	SDL_PollEvent(&event);
@@ -273,17 +277,22 @@ void Game::handleEventsforClient()
 	send_event[1] = player1->destR.y;
 }
 
-void Game::eventsFromServer()
+void Game::eventsFromServer(int16_t array[])
 {
-	player1->destR.x = send_event[0];
-	player1->destR.y = send_event[1];
+	player1->destR.x = array[0];
+	player1->destR.y = array[1];
 
-	if(send_event[2]!=-1)
+	if(array[2]!=-1)
 	{
-		bullet* newbullet = new bullet(int(send_event[2]),int(send_event[3]),int(send_event[4]));
+		bullet* newbullet = new bullet(int(array[2]),int(array[3]),int(array[4]));
 		newbullet->init(renderer);
 		all_bullets.push_back(newbullet);
 		player1->coins--;	
+	}
+
+	if(array[5]==0)				//client has been shot
+	{
+		isRunning = false;
 	}
 }
 
