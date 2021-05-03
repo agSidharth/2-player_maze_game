@@ -33,7 +33,6 @@ int its_an_old_client(int client_pos);
 void add_adr_to_list(int client_pos, struct sockaddr_in *client_addr);
 
 
-
 void prepare_client(int *sock, struct sockaddr_in *client_addr) {
     if ((*sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("client socket failed");
@@ -49,8 +48,7 @@ void send_to_server(int sock, struct sockaddr_in serv_addr, int16_t id, int16_t 
     tab[0] = id;
     tab[1] = keys;
     socklen_t serv_addr_size = sizeof(struct sockaddr);
-    if (sendto(sock, tab, sizeof(int16_t) * 2, 0,
-            (struct sockaddr *) &serv_addr, serv_addr_size) < 0) {
+    if (sendto(sock, tab, sizeof(int16_t) * 2, 0, (struct sockaddr *) &serv_addr, serv_addr_size) < 0) {
         perror("sendto error");
     }
  
@@ -132,6 +130,7 @@ void* server_receive_loop(void *arg) {
             int16_t tab[3];
             tab[0] = -1;
             tab[1] = client_pos;
+            connected = 1;
             send_data(socket, clients_addresses[client_pos], tab, 3);
         }
         usleep(50);
@@ -183,10 +182,10 @@ void* server_send_loop(void *arg) {
         for (i = 0; i < number_of_connected_clients; i++) {
             for (j = 0; j < number_of_connected_clients; j++) {
                 tab[0] = j;
-                /*tab[1] = players_server[j].position.x;
-                tab[2] = players_server[j].position.y;
-                tab[3] = players_server[j].kills;
-                tab[4] = players_server[j].deaths;*/
+                tab[1] = 0;
+                tab[2] = 0;
+                tab[3] = 1;
+                tab[4] = 1;
                 send_data(socket, clients_addresses[i], tab, 5);
                 usleep(20);
             }

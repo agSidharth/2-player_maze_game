@@ -15,8 +15,8 @@ using namespace std;
 player ser(0,0);
 player cli(0,0);
 int total_bullets = 0;
-int my_id;		//server has id 0 and client has 1
-
+int16_t my_id = -1;		//server has id 0 and client has 1
+int in_c_loop =0;
 void receive_new_id(int id) {
     my_id = id;
     //number_of_players = id;
@@ -28,11 +28,13 @@ void* client_loop(void *arg) {
     int16_t tab[BUF_MAX];
     int length;
     int id, bullets_in_array;
+    in_c_loop = 1;
     while (1) {
         length = client_listen(socket, tab);
         id = tab[0];
         if (id == -1) {
             receive_new_id(tab[1]);
+            //connected = 1;
         }
         /*
         if (id >= 0) {
@@ -53,44 +55,47 @@ void* client_loop(void *arg) {
 
 int main(int argc, char* argv[])
 {
-	if( (argc <2 || argc >3) && !((argc == 2 && argv[1][0] == 's') ||(argc == 3 && argv[1][0] == 'c')) )
+	cerr << "A";
+	if( (argc <2 || argc >3)  )
 	{
 		cout << "Pass s/c for server or client and server address in case you are client";
 		return 1;
 	}
-	struct sockaddr_in server_addr, client_addr;
+	sockaddr_in server_addr, client_addr;
     int sock_server, sock_client;
-    char *server_ip_addr;
+    char *server_ip_addr = NULL;
+    cerr << "A";
 
     if (argv[1][0] == 'c') {
-    	my_id = 1;
+    	my_id = -1;
+    	server_ip_addr = (char*)(malloc(16 * sizeof(char)));
         server_ip_addr = argv[2];
     }
-    
+    cerr << "A";
     pthread_t thread_id_server, thread_id_client, thread_id_server_send;
     server_addr = server_sock_addr(server_ip_addr);
     client_addr = client_sock_addr();
+
     if(argv[1][0] == 's') {
     	my_id = 0;
         prepare_server(&sock_server, &server_addr);
         pthread_create(&thread_id_server, NULL, server_receive_loop, &sock_server);
         pthread_create(&thread_id_server_send, NULL, server_send_loop, &sock_server);
+        cerr << "HIII" << connected;
+        while(connected != 1)
+    	{
+    		usleep(100);
+    		//cout << connected;
+    	}
     }
+    cerr << "B";
     prepare_client(&sock_client, &client_addr);
+    cerr << "B";
     pthread_create(&thread_id_client, NULL, client_loop, &sock_client);
-
-    /*
     SDL_Event e;
-
     while (1) {
-        if (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                break;
-            }
-            resolve_keyboard(e, &players[my_id]);
-        }
-        send_to_server(sock_client, server_addr, my_id, key_state_from_player(&players[my_id]));
-        usleep(30);
+        send_to_server(sock_client, server_addr, my_id, 0);
+        usleep(30);}/*
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, map, NULL, NULL);
         for (i = 0; i <= number_of_players; i++) {
@@ -118,13 +123,13 @@ int main(int argc, char* argv[])
         }
         SDL_RenderPresent(renderer);
     }
-
+*/
     close(sock_client);
     close(sock_server);
     pthread_cancel(thread_id_client);
     pthread_cancel(thread_id_server);
     pthread_cancel(thread_id_server_send);
-    SDL_DestroyTexture(tex);
+  /*  SDL_DestroyTexture(tex);
     SDL_DestroyTexture(bullet);
     SDL_DestroyTexture(map);
     SDL_DestroyRenderer(renderer);
