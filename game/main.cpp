@@ -9,18 +9,17 @@
 #include "constants.hpp"
 #include "network.hpp"
 #include "client_server.hpp"
+#include "game.hpp"
 
 using namespace std;
 
-player ser(0,0);
-player cli(0,0);
 int total_bullets = 0;
 int16_t my_id = -1;		//server has id 0 and client has 1
-int in_c_loop =0;
+//int in_c_loop =0;
 void receive_new_id(int id) {
     my_id = id;
     //number_of_players = id;
-    printf("my_id is now: %d\n", my_id);
+    cout << "my_id is now: "<<my_id<<"\n";
 }
 
 void* client_loop(void *arg) {
@@ -28,7 +27,7 @@ void* client_loop(void *arg) {
     int16_t tab[BUF_MAX];
     int length;
     int id, bullets_in_array;
-    in_c_loop = 1;
+    //in_c_loop = 1;
     while (1) {
         length = client_listen(socket, tab);
         id = tab[0];
@@ -36,14 +35,9 @@ void* client_loop(void *arg) {
             receive_new_id(tab[1]);
             //connected = 1;
         }
+        //cerr << "HIIIII";
+        //game -> eventsFromServer(tab);
         /*
-        if (id >= 0) {
-            check_if_its_new_player(id);
-            players[id].position.x = tab[1];
-            players[id].position.y = tab[2];
-            players[id].kills = tab[3];
-            players[id].deaths = tab[4];
-        }
         if (id == -2) {
             bullets_in_array = (length - sizeof(int16_t)) / (sizeof(int16_t) * 2);
             memcpy(bullets_client, tab + 1, sizeof(int16_t) * 2 * bullets_in_array);
@@ -77,25 +71,68 @@ int main(int argc, char* argv[])
     client_addr = client_sock_addr();
 
     if(argv[1][0] == 's') {
-    	my_id = 0;
+    	my_id = -1;
         prepare_server(&sock_server, &server_addr);
         pthread_create(&thread_id_server, NULL, server_receive_loop, &sock_server);
         pthread_create(&thread_id_server_send, NULL, server_send_loop, &sock_server);
         cerr << "HIII" << connected;
-        while(connected != 1)
-    	{
-    		usleep(100);
-    		//cout << connected;
-    	}
     }
     cerr << "B";
     prepare_client(&sock_client, &client_addr);
     cerr << "B";
     pthread_create(&thread_id_client, NULL, client_loop, &sock_client);
-    SDL_Event e;
-    while (1) {
-        send_to_server(sock_client, server_addr, my_id, 0);
-        usleep(30);}/*
+    send_to_server(sock_client, server_addr, my_id, 0);
+    while(my_id == -1)
+    {
+    	usleep(30);
+    }
+    if(my_id == 0)
+    {
+    	while(number_of_connected_clients != 2)
+    	{
+    		usleep(30);
+    	}
+    }
+   
+    cerr << "k";
+    //usleep(40000000);
+   	//while (1)
+   	 {
+    	Game* game;
+		game = new Game();
+		game ->init(TITLE,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT);
+
+		while(game->running())
+		{	
+			TIME++;
+			frameStart = SDL_GetTicks();
+
+			if(my_id == 0)
+			{
+				game->handleEventsforServer();
+			}
+			if(my_id == 1)
+			{
+				game -> handleEventsforClient();
+			}
+			game->update();
+			game->render();
+
+			frameTime = SDL_GetTicks() - frameStart;
+
+			difference = frameDelay - frameTime;
+			if(difference>0)
+			{
+				SDL_Delay(difference);
+			}
+		}
+
+		game ->clean();
+        //send_to_server(sock_client, server_addr, my_id, 0);
+        //usleep(30);
+    }
+
+        /*
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, map, NULL, NULL);
         for (i = 0; i <= number_of_players; i++) {

@@ -130,7 +130,7 @@ void* server_receive_loop(void *arg) {
             int16_t tab[3];
             tab[0] = -1;
             tab[1] = client_pos;
-            connected = 1;
+            connected += 1;
             send_data(socket, clients_addresses[client_pos], tab, 3);
         }
         usleep(50);

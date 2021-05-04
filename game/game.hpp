@@ -14,28 +14,20 @@ public:
 	Game();
 
 	void init(char* title,int xpos,int ypos,int width,int height);			//Initialize the game window for first time..
-
 	void handleEventsforServer();	
-
 	void handleEventsforClient();	
-
 	void eventsFromClient(int16_t array[]);
-
-	void eventsFromSerer(int16_t array[]);
+	void eventsFromServer(int16_t array[]);
 
 	void update();
-
 	void render();				//Change the screen being rendered and updates it.
-
 	void clean();				//Once the game is over destroys the screen and renderer
 
 	bool running() {return isRunning;}
-
 	bool isRunning = false;
 	int key_pressed = 0;		//number of key pressed.
 
-	int16_t send_event = [6];	
-	
+	int16_t send_event[6];	
 	SDL_Window *window = nullptr;
 	SDL_Renderer *renderer = nullptr;
 
@@ -69,6 +61,10 @@ void Game::init(char* title,int xpos,int ypos,int width,int height)
 		isRunning = false;
 		cout<<"Window has not been created yet";
 	}
+	else
+	{
+		cout << "Window created"<<endl;
+	}
 
 	renderer = SDL_CreateRenderer(window,-1,0);
 	if(renderer==0)
@@ -76,10 +72,21 @@ void Game::init(char* title,int xpos,int ypos,int width,int height)
 		cout<<"Renderer has not been initialised";
 		isRunning = false;
 	}
+	else
+	{
+		cout << "Renderer initialised" <<endl;
+	}
 	SDL_SetRenderDrawColor(renderer,128,128,128,255);
 
 	//for text rendering.....
-	if(TTF_Init()==-1) cout<<"Error in loading ttf";
+	if(TTF_Init()==-1) 
+	{
+		cout<<"Error in loading ttf";
+	}
+	else
+	{
+		cout << "TTF loaded succesfully";
+	}
 	Font = TTF_OpenFont("./resources/font.ttf", 30);
 	SDL_Color Black = {0, 0, 0,255};
 	
@@ -200,7 +207,7 @@ void Game::handleEventsforServer()
 	send_event[1] = player1->destR.y;
 }
 
-void Game::eventsFromClient(int array[])
+void Game::eventsFromClient(int16_t array[])
 {
 	player2->destR.x = array[0];
 	player2->destR.y = array[1];
@@ -302,8 +309,7 @@ void Game::update()
 	player2->touch(maze,2);
 
 	int i=0;
-	int total_bullets = all_bullets.size();
-	while(i<all_bullets.size())
+	while(i<(int)all_bullets.size())
 	{
 		if(all_bullets[i]->move(maze->map,player1,player2) == false)
 		{
