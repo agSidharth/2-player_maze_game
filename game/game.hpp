@@ -23,7 +23,7 @@ public:
 
 	void update();
 	void render();				//Change the screen being rendered and updates it.
-	void clean();				//Once the game is over destroys the screen and renderer
+	int clean();				//Once the game is over destroys the screen and renderer
 
 	bool loadMedia();
 	bool running() {return isRunning;}
@@ -396,35 +396,41 @@ void Game::update()
 
 	if(player1->health==0)
 	{
+		player1->ForScore(Font,renderer,"PLAYER1 : LOSSER ",false);
+		player2->ForScore(Font,renderer,"PLAYER2 : WINNER ",false);
 		isRunning = false;
+		return ;
 	}
 	else if(player2->health==0)
 	{
+		player1->ForScore(Font,renderer,"PLAYER1 : WINNER ",false);
+		player2->ForScore(Font,renderer,"PLAYER2 : LOSSER ",false);
 		isRunning = false;
+		return ;
 	}
 
 	if((my_id==0 && invisibility>0) || (my_id==1 && opponent_invisible))
 	{
-		player1->ForScore(Font,renderer,"INVISIBLE_PLAYER1 BULLETS : ");
+		player1->ForScore(Font,renderer,"INVISIBLE_PLAYER1 BULLETS : ",true);
 	}
-	else player1->ForScore(Font,renderer,"PLAYER1 BULLETS : ");
+	else player1->ForScore(Font,renderer,"PLAYER1 BULLETS : ",true);
 	
 	if((my_id==1 && invisibility>0) || (my_id==0 && opponent_invisible))
 	{
-		player2->ForScore(Font,renderer,"INVISIBLE_PLAYER2 BULLETS : ");
+		player2->ForScore(Font,renderer,"INVISIBLE_PLAYER2 BULLETS : ",true);
 	}
-	else player2->ForScore(Font,renderer,"PLAYER2 BULLETS : ");
+	else player2->ForScore(Font,renderer,"PLAYER2 BULLETS : ",true);
 }
 void Game::render()
 {
 	SDL_RenderClear(renderer);
 	maze->DrawMap(renderer);
 
-	if(my_id==0 || (my_id==1 && !opponent_invisible))
+	if((my_id==0 || (my_id==1 && !opponent_invisible)) && player1->health>0)
 	{
 		SDL_RenderCopy(renderer,player1->playerTex,NULL,&(player1->destR));
 	}
-	if(my_id==1 || (my_id==0 && !opponent_invisible))
+	if((my_id==1 || (my_id==0 && !opponent_invisible)) && player2->health>0)
 	{
 		SDL_RenderCopy(renderer,player2->playerTex,NULL,&(player2->destR));
 	}
@@ -445,8 +451,20 @@ void Game::render()
 	SDL_RenderPresent(renderer);	
 }
 
-void Game::clean()
+int Game::clean()
 {	
+	int won = -1;
+	if(player1->health==0)
+	{
+		cout<<"\n\nPLAYER2 WON ";
+		won = 1;
+	}
+	else if(player2->health==0) 
+	{
+		cout<<"\n\nPLAYER1 WON ";
+		won = 0;
+	}
+
 	Mix_FreeChunk(gunshot);
 	gunshot = nullptr;
 
@@ -466,5 +484,6 @@ void Game::clean()
 	maze->clean();
 	maze = nullptr;
 	
-	cout<<"GAME OVER"<<endl; 
+	cout<<"\nROUND OVER"<<endl; 
+	return won;
 }

@@ -47,8 +47,7 @@ void Maze::init(int x)
 		{
 			vector<int> temp(b,1);
 			M.push_back(temp);
-		}
-		srand(time(NULL));		
+		}		
 	}
 
 void Maze::create(int x,int y)

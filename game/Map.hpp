@@ -61,7 +61,6 @@ Map::Map(SDL_Renderer *renderer)
     second_vent.h = TILE_SIZE;
     
     Maze* matrix = new Maze(SCREEN_WIDTH/TILE_SIZE,SCREEN_HEIGHT/TILE_SIZE);
-    cout << "HI";
     matrix -> init(34);
     
     matrix -> create(0,0);
@@ -72,9 +71,7 @@ Map::Map(SDL_Renderer *renderer)
         for(int col=0;col<SCREEN_HEIGHT/TILE_SIZE;col++)
         {
             map[row][col] = vector_map[row][col];
-            cout << map[row][col];
         }
-        cout << endl;
     }
     
 }

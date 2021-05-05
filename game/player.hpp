@@ -16,7 +16,7 @@ public:
 	SDL_Rect teleport(SDL_Rect box,Map* maze);
 
 	void touch(Map* maze,int type);
-	void ForScore(TTF_Font* Font,SDL_Renderer *renderer,string intro);
+	void ForScore(TTF_Font* Font,SDL_Renderer *renderer,string intro,bool add);
 
 	void clean();
 
@@ -52,11 +52,11 @@ player::player(int x,int y,int score_x,int score_y)
 	health = 100;
 }
 
-void player::ForScore(TTF_Font* Font,SDL_Renderer *renderer,string intro)
+void player::ForScore(TTF_Font* Font,SDL_Renderer *renderer,string intro,bool add)
 {
 	SDL_Color Black= {0,0,0,255};
 
-	intro =  intro + to_string(coins);
+	if(add) intro =  intro + to_string(coins);
 	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Font, intro.c_str(), Black);
 	scoreTex = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
 	SDL_FreeSurface(surfaceMessage);

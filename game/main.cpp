@@ -55,7 +55,7 @@ void* client_loop(void *arg) {
 
 int main(int argc, char* argv[])
 {
-	cerr << "A";
+	//cerr << "A";
 	if( (argc <2 || argc >3)  )
 	{
 		cout << "Pass s/c for server or client and server address in case you are client";
@@ -65,14 +65,14 @@ int main(int argc, char* argv[])
 	sockaddr_in server_addr, client_addr;
     int sock_server, sock_client;
     char *server_ip_addr = NULL;
-    cerr << "A";
+    //cerr << "A";
 
     if (argv[1][0] == 'c') {
     	my_id = -1;
     	server_ip_addr = (char*)(malloc(16 * sizeof(char)));
         server_ip_addr = argv[2];
     }
-    cerr << "A";
+    //cerr << "A";
     pthread_t thread_id_server, thread_id_client;
     server_addr = server_sock_addr(server_ip_addr);
     client_addr = client_sock_addr();
@@ -81,11 +81,11 @@ int main(int argc, char* argv[])
     	my_id = -1;
         prepare_server(&sock_server, &server_addr);
         pthread_create(&thread_id_server, NULL, server_receive_loop, &sock_server);
-        cerr << "HIII" << connected;
+        //cerr << "HIII" << connected;
     }
-    cerr << "B";
+    //cerr << "B";
     prepare_client(&sock_client, &client_addr);
-    cerr << "B";
+    //cerr << "B";
     pthread_create(&thread_id_client, NULL, client_loop, &sock_client);
     short dummy[(TAB_SIZE)];
     send_to_server(sock_client, server_addr, my_id, dummy);
@@ -101,10 +101,15 @@ int main(int argc, char* argv[])
     	}
     }
    
-    //cerr << "k";
+    ////cerr << "k";
     string title = "PLAYER";
+    int won,rep = 0;
+    int score[2] = {0};
     char char_title[8];
+
+    while(rep<ROUNDS)
     {
+        srand(50+2);
 		game = new Game(my_id);
         title = title + to_string(my_id+1);
         strcpy(char_title,title.c_str());
@@ -118,10 +123,10 @@ int main(int argc, char* argv[])
 			if(my_id == 0)
 			{
 				game->handleEventsforServer();
-                cerr << "check send to server";
+                //cerr << "check send to server";
                 for(int i=0;i<(TAB_SIZE);i++)
                 {
-                    cerr << game->send_event[i] << " ";
+                    //cerr << game->send_event[i] << " ";
                 }
                 send_to_server(sock_client, server_addr, my_id, game->send_event);
                 tab1[0] = my_id;
@@ -129,7 +134,7 @@ int main(int argc, char* argv[])
                 {
                     tab1[i+1] = game -> send_event[i];
                 }
-                cerr << "can send to server";
+                //cerr << "can send to server";
 			}
 			if(my_id == 1)
 			{
@@ -146,10 +151,23 @@ int main(int argc, char* argv[])
 			{
 				SDL_Delay(difference);
 			}
+
+            if(!game->isRunning) sleep(3);
 		}
 
-		game ->clean();
+		won = game ->clean();
+        score[won]++;
+        rep++;
+
+        if(score[0]>ROUNDS/2 || score[1]>ROUNDS/2) break;
     }
+    cout<<"\n\nFINAL SCORES :\nPLAYER1 : "<<score[0]<<"\nPLAYER2 : "<<score[1]<<endl;
+    if(score[0]>score[1]) cout<<"PLAYER1 WON THE GAME";
+    else if(score[0]<score[1]) cout<<"PLAYER2 WON THE GAME";
+    else cout<<"TIE";
+
+    cout<<"\n........GAME OVER...........\n";
+
 
     close(sock_client);
     close(sock_server);
