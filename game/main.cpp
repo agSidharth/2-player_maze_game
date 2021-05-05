@@ -5,6 +5,9 @@
 #include <pthread.h>
 #include <time.h>
 #include <stdint.h>
+
+short tab1[8];
+
 #include "player.hpp"
 #include "constants.hpp"
 #include "network.hpp"
@@ -65,6 +68,7 @@ int main(int argc, char* argv[])
 		cout << "Pass s/c for server or client and server address in case you are client";
 		return 1;
 	}
+    srand(50);
 	sockaddr_in server_addr, client_addr;
     int sock_server, sock_client;
     char *server_ip_addr = NULL;
@@ -126,6 +130,11 @@ int main(int argc, char* argv[])
                     cerr << game->send_event[i] << " ";
                 }
                 send_to_server(sock_client, server_addr, my_id, game->send_event);
+                tab1[0] = my_id;
+                for(int i=0;i<7;i++)
+                {
+                    tab1[i+1] = game -> send_event[i];
+                }
                 cerr << "can send to server";
 			}
 			if(my_id == 1)

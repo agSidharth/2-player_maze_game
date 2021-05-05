@@ -108,7 +108,7 @@ void Game::init(char* title,int xpos,int ypos,int width,int height)
 
 	//for correct initialization of location of players.
 
-	srand(time(0));												//for random and separate initialization.
+	//srand(time(0));												//for random and separate initialization.
 	int spawn_x = rand()%(SCREEN_WIDTH/(TILE_SIZE*2)-1);
 	int spawn_y = rand()%(SCREEN_HEIGHT/(TILE_SIZE*2)-1);
 	

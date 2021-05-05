@@ -80,6 +80,7 @@ void* server_receive_loop(void *arg) {
         if (its_an_old_client(client_pos)) {
         	if(tab[0] == 1)
         	{
+        		send_data(socket,clients_addresses[1],tab1,8);
         		send_data(socket,clients_addresses[1-client_pos],tab,8);
         		cerr << "Client : "<<client_pos << " ";
         		for(int i=0;i<8;i++)
