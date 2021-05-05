@@ -16,9 +16,6 @@
 
 #define SERVER_PORT 1234
 
-void prepare_client(int *sock, struct sockaddr_in *client_addr);
-void send_to_server(int sock, struct sockaddr_in serv_addr, int16_t id, int16_t keys);
-int client_listen(int sock, int16_t *tab);
 void prepare_server(int *sock, struct sockaddr_in *server_sock);
 void send_data(int sock, struct sockaddr_in client, int16_t tab[], int size);
 void* server_receive_loop(void *arg);
@@ -32,37 +29,12 @@ void* server_send_loop(void *arg);
 int its_an_old_client(int client_pos);
 void add_adr_to_list(int client_pos, struct sockaddr_in *client_addr);
 
-
-void prepare_client(int *sock, struct sockaddr_in *client_addr) {
-    if ((*sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        perror("client socket failed");
-    }
-
-    if (bind(*sock, (struct sockaddr*)client_addr, sizeof(struct sockaddr)) < 0) {
-        perror("bind client error");
-    }
-}
-
-void send_to_server(int sock, struct sockaddr_in serv_addr, int16_t id, int16_t keys) {
-    int16_t tab[2];
-    tab[0] = id;
-    tab[1] = keys;
-    socklen_t serv_addr_size = sizeof(struct sockaddr);
-    if (sendto(sock, tab, sizeof(int16_t) * 2, 0, (struct sockaddr *) &serv_addr, serv_addr_size) < 0) {
-        perror("sendto error");
-    }
- 
-}
-
-int client_listen(int sock, int16_t *tab){
-    int length = recvfrom(sock, tab, sizeof(int16_t) * BUF_MAX, 0, NULL, 0);
-    return length;
-}
 
 struct sockaddr_in clients_addresses[MAX_PLAYERS];
 //struct Player players_server[MAX_PLAYERS];
 //struct node *bullets_server = NULL;
 int number_of_connected_clients = 0;
+short send_event[7][2];
 
 void prepare_server(int *sock, struct sockaddr_in *server_sock) {
     memset(clients_addresses, 0, sizeof(struct sockaddr_in) * MAX_PLAYERS);
@@ -100,15 +72,26 @@ void* server_receive_loop(void *arg) {
     int socket = *((int *) arg);
     int client_pos = 0;
     struct sockaddr_in client_addr;
-    int16_t tab[4];
+    short tab[8];
     //init_players_tab();
     while (1) {
         client_addr = receive_data(socket, tab);
         client_pos = addr_pos_in_tab(client_addr, clients_addresses, number_of_connected_clients);
-        /*if (its_an_old_client(client_pos)) {
-            int16_t keys = tab[1];
-            player_from_key_state(&players_server[client_pos], keys);
+        if (its_an_old_client(client_pos)) {
+        	if(tab[0] == 1)
+        	{
+        		send_data(socket,clients_addresses[1-client_pos],tab,8);
+        		cerr << "Client : "<<client_pos << " ";
+        		for(int i=0;i<8;i++)
+        		{
+        			cerr << tab[i] << " ";
+        		}
+        		cerr << "\n";
+        		//cerr << "Send data is working";
+        	}
+            /*int16_t keys = tab[1];
             if(players_server[client_pos].shoot && !players_server[client_pos].reloading) {
+
                 struct Bullet temp;
                 temp.position.x = players_server[client_pos].position.x;
                 temp.position.y = players_server[client_pos].position.y;
@@ -123,8 +106,8 @@ void* server_receive_loop(void *arg) {
                 temp.player_id = client_pos;
                 push_element(&bullets_server, &temp, sizeof(struct Bullet));
             }
-            players_server[client_pos].reloading = players_server[client_pos].shoot;
-        }*/
+            players_server[client_pos].reloading = players_server[client_pos].shoot;*/
+        }
         if (tab[0] == -1 && client_pos < MAX_PLAYERS) {
             add_adr_to_list(client_pos, &client_addr);
             int16_t tab[3];
@@ -157,7 +140,7 @@ int get_bullet_array(struct node *list, int16_t **array) {
     return n;
 }
 */
-
+/*
 void* server_send_loop(void *arg) {
     int socket = *((int *) arg);
     int16_t tab[3];
@@ -178,7 +161,7 @@ void* server_send_loop(void *arg) {
             }
         }
         int16_t *bullet_array = NULL;
-        int bullets_n = get_bullet_array(bullets_server, &bullet_array);*/
+        int bullets_n = get_bullet_array(bullets_server, &bullet_array);
         for (i = 0; i < number_of_connected_clients; i++) {
             for (j = 0; j < number_of_connected_clients; j++) {
                 tab[0] = j;
@@ -197,7 +180,7 @@ void* server_send_loop(void *arg) {
         usleep(FRAME_TIME - time_interval);
     }
 }
-
+*/
 
 int its_an_old_client(int client_pos) {
     return (client_pos < number_of_connected_clients && client_pos >= 0);

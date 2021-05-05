@@ -8,7 +8,8 @@
 #include "player.hpp"
 #include "constants.hpp"
 #include "network.hpp"
-#include "client_server.hpp"
+#include "client.hpp"
+#include "server.hpp"
 #include "game.hpp"
 
 using namespace std;
@@ -22,6 +23,7 @@ void receive_new_id(int id) {
     cout << "my_id is now: "<<my_id<<"\n";
 }
 
+Game* game;
 void* client_loop(void *arg) {
     int socket = *((int *) arg);
     int16_t tab[BUF_MAX];
@@ -34,6 +36,14 @@ void* client_loop(void *arg) {
         if (id == -1) {
             receive_new_id(tab[1]);
             //connected = 1;
+        }
+        if(tab[0]==1)
+        {
+            game -> eventsFromClient(tab);
+        }
+        if(tab[0]==0)
+        {
+            game -> eventsFromServer(tab);
         }
         //cerr << "HIIIII";
         //game -> eventsFromServer(tab);
@@ -74,14 +84,15 @@ int main(int argc, char* argv[])
     	my_id = -1;
         prepare_server(&sock_server, &server_addr);
         pthread_create(&thread_id_server, NULL, server_receive_loop, &sock_server);
-        pthread_create(&thread_id_server_send, NULL, server_send_loop, &sock_server);
+        //pthread_create(&thread_id_server_send, NULL, server_send_loop, &sock_server);
         cerr << "HIII" << connected;
     }
     cerr << "B";
     prepare_client(&sock_client, &client_addr);
     cerr << "B";
     pthread_create(&thread_id_client, NULL, client_loop, &sock_client);
-    send_to_server(sock_client, server_addr, my_id, 0);
+    short dummy[7];
+    send_to_server(sock_client, server_addr, my_id, dummy);
     while(my_id == -1)
     {
     	usleep(30);
@@ -98,7 +109,6 @@ int main(int argc, char* argv[])
     //usleep(40000000);
    	//while (1)
    	 {
-    	Game* game;
 		game = new Game();
 		game ->init(TITLE,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT);
 
@@ -110,10 +120,18 @@ int main(int argc, char* argv[])
 			if(my_id == 0)
 			{
 				game->handleEventsforServer();
+                cerr << "check send to server";
+                for(int i=0;i<7;i++)
+                {
+                    cerr << game->send_event[i] << " ";
+                }
+                send_to_server(sock_client, server_addr, my_id, game->send_event);
+                cerr << "can send to server";
 			}
 			if(my_id == 1)
 			{
 				game -> handleEventsforClient();
+                send_to_server(sock_client, server_addr, my_id, game->send_event);
 			}
 			game->update();
 			game->render();
