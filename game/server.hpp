@@ -49,7 +49,7 @@ void prepare_server(int *sock, struct sockaddr_in *server_sock) {
 struct sockaddr_in receive_data(int sock, int16_t data[]) {
     struct sockaddr_in addr;
     socklen_t addr_size = sizeof(struct sockaddr);
-    recvfrom(sock, data, sizeof(int16_t) * 4, 0, (struct sockaddr*)&addr, &addr_size);
+    recvfrom(sock, data, sizeof(int16_t) * 8, 0, (struct sockaddr*)&addr, &addr_size);
     return addr;
 }
 
@@ -114,7 +114,7 @@ void* server_receive_loop(void *arg) {
             tab[0] = -1;
             tab[1] = client_pos;
             connected += 1;
-            send_data(socket, clients_addresses[client_pos], tab, 3);
+            send_data(socket, clients_addresses[client_pos], tab, 8);
         }
         usleep(50);
     }
