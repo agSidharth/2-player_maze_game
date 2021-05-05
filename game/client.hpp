@@ -17,7 +17,7 @@
 #define SERVER_PORT 1234
 
 void prepare_client(int *sock, struct sockaddr_in *client_addr);
-void send_to_server(int sock, struct sockaddr_in serv_addr, int16_t id, int16_t keys[7]);
+void send_to_server(int sock, struct sockaddr_in serv_addr, int16_t id, int16_t keys[]);
 int client_listen(int sock, int16_t *tab);
 
 void prepare_client(int *sock, struct sockaddr_in *client_addr) {
@@ -30,16 +30,16 @@ void prepare_client(int *sock, struct sockaddr_in *client_addr) {
     }
 }
 
-void send_to_server(int sock, struct sockaddr_in serv_addr, int16_t id, int16_t keys[7]) {
-    short tab[8];
+void send_to_server(int sock, struct sockaddr_in serv_addr, int16_t id, int16_t keys[]) {
+    short tab[TAB_SIZE+1];
     tab[0] = id;
-    for(int i=0;i<7;i++)
+    for(int i=0;i<TAB_SIZE;i++)
     {
     	tab[i+1] = keys[i];
-    	cerr << keys[i] << " ";
+    	//cerr << keys[i] << " ";
     }
     socklen_t serv_addr_size = sizeof(struct sockaddr);
-    if (sendto(sock, tab, sizeof(short) * 8, 0, (struct sockaddr *) &serv_addr, serv_addr_size) < 0) {
+    if (sendto(sock, tab, sizeof(short) * (TAB_SIZE+1), 0, (struct sockaddr *) &serv_addr, serv_addr_size) < 0) {
         perror("sendto error");
     }
  
@@ -47,9 +47,9 @@ void send_to_server(int sock, struct sockaddr_in serv_addr, int16_t id, int16_t 
 
 int client_listen(int sock, int16_t *tab){
     int length = recvfrom(sock, tab, sizeof(int16_t) * BUF_MAX, 0, NULL, 0);
-    for(int i=0;i<length;i++)
+    /*for(int i=0;i<length;i++)
     {
     	cerr << tab[i];
-    }
+    }*/
     return length;
 }

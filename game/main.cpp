@@ -1,15 +1,17 @@
 #include <iostream>
 #include <stdio.h>
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
+#include<SDL2/SDL_mixer.h>
 #include <pthread.h>
 #include <time.h>
 #include <stdint.h>
 
-short tab1[8];
+#include "constants.hpp"
+short tab1[(TAB_SIZE+1)];
 
 #include "player.hpp"
-#include "constants.hpp"
 #include "network.hpp"
 #include "client.hpp"
 #include "server.hpp"
@@ -30,11 +32,10 @@ Game* game;
 void* client_loop(void *arg) {
     int socket = *((int *) arg);
     int16_t tab[BUF_MAX];
-    int length;
-    int id, bullets_in_array;
+    int id;
     //in_c_loop = 1;
     while (1) {
-        length = client_listen(socket, tab);
+        client_listen(socket, tab);
         id = tab[0];
         if (id == -1) {
             receive_new_id(tab[1]);
@@ -48,14 +49,6 @@ void* client_loop(void *arg) {
         {
             game -> eventsFromServer(tab);
         }
-        //cerr << "HIIIII";
-        //game -> eventsFromServer(tab);
-        /*
-        if (id == -2) {
-            bullets_in_array = (length - sizeof(int16_t)) / (sizeof(int16_t) * 2);
-            memcpy(bullets_client, tab + 1, sizeof(int16_t) * 2 * bullets_in_array);
-            bullets_number = bullets_in_array;
-        }*/
         usleep(50);
     }
 }
@@ -80,7 +73,7 @@ int main(int argc, char* argv[])
         server_ip_addr = argv[2];
     }
     cerr << "A";
-    pthread_t thread_id_server, thread_id_client, thread_id_server_send;
+    pthread_t thread_id_server, thread_id_client;
     server_addr = server_sock_addr(server_ip_addr);
     client_addr = client_sock_addr();
 
@@ -88,14 +81,13 @@ int main(int argc, char* argv[])
     	my_id = -1;
         prepare_server(&sock_server, &server_addr);
         pthread_create(&thread_id_server, NULL, server_receive_loop, &sock_server);
-        //pthread_create(&thread_id_server_send, NULL, server_send_loop, &sock_server);
         cerr << "HIII" << connected;
     }
     cerr << "B";
     prepare_client(&sock_client, &client_addr);
     cerr << "B";
     pthread_create(&thread_id_client, NULL, client_loop, &sock_client);
-    short dummy[7];
+    short dummy[(TAB_SIZE)];
     send_to_server(sock_client, server_addr, my_id, dummy);
     while(my_id == -1)
     {
@@ -109,12 +101,14 @@ int main(int argc, char* argv[])
     	}
     }
    
-    cerr << "k";
-    //usleep(40000000);
-   	//while (1)
-   	 {
-		game = new Game();
-		game ->init(TITLE,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT);
+    //cerr << "k";
+    string title = "PLAYER";
+    char char_title[8];
+    {
+		game = new Game(my_id);
+        title = title + to_string(my_id+1);
+        strcpy(char_title,title.c_str());
+        game ->init(char_title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT);
 
 		while(game->running())
 		{	
@@ -125,13 +119,13 @@ int main(int argc, char* argv[])
 			{
 				game->handleEventsforServer();
                 cerr << "check send to server";
-                for(int i=0;i<7;i++)
+                for(int i=0;i<(TAB_SIZE);i++)
                 {
                     cerr << game->send_event[i] << " ";
                 }
                 send_to_server(sock_client, server_addr, my_id, game->send_event);
                 tab1[0] = my_id;
-                for(int i=0;i<7;i++)
+                for(int i=0;i<(TAB_SIZE);i++)
                 {
                     tab1[i+1] = game -> send_event[i];
                 }
@@ -155,49 +149,10 @@ int main(int argc, char* argv[])
 		}
 
 		game ->clean();
-        //send_to_server(sock_client, server_addr, my_id, 0);
-        //usleep(30);
     }
 
-        /*
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, map, NULL, NULL);
-        for (i = 0; i <= number_of_players; i++) {
-            SDL_RenderCopy(renderer, tex, NULL, &players[i].position);
-        }
-
-        disp_text(renderer, "kills", font, 400, 10);
-        for (i = 0; i <= number_of_players; i++) {
-            char kills[10] = {};
-            sprintf(kills, "%d", players[i].kills);
-            disp_text(renderer, kills, font, 400, 30 + i * 20);
-        }
-
-        disp_text(renderer, "deaths", font, 460, 10);
-        for (i = 0; i <= number_of_players; i++) {
-            char deaths[10] = {};
-            sprintf(deaths, "%d", players[i].deaths);
-            disp_text(renderer, deaths, font, 460, 30 + i * 20);
-        }
-
-        for (i = 0; i < bullets_number; i++) {
-            bullet_pos.x = bullets_client[i*2];
-            bullet_pos.y = bullets_client[i*2 + 1];
-            SDL_RenderCopy(renderer, bullet, NULL, &bullet_pos);
-        }
-        SDL_RenderPresent(renderer);
-    }
-*/
     close(sock_client);
     close(sock_server);
     pthread_cancel(thread_id_client);
     pthread_cancel(thread_id_server);
-    pthread_cancel(thread_id_server_send);
-  /*  SDL_DestroyTexture(tex);
-    SDL_DestroyTexture(bullet);
-    SDL_DestroyTexture(map);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    return 0;*/
 }

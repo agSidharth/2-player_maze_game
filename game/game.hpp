@@ -3,6 +3,8 @@
 #include<iostream>
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_image.h>
+#include<SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
 #include "Map.hpp"
 #include "bullet.hpp"
 #include "player.hpp"
@@ -11,7 +13,7 @@ using namespace std;
 class Game
 {
 public:
-	Game();
+	Game(int x);
 
 	void init(char* title,int xpos,int ypos,int width,int height);			//Initialize the game window for first time..
 	void handleEventsforServer();	
@@ -23,11 +25,15 @@ public:
 	void render();				//Change the screen being rendered and updates it.
 	void clean();				//Once the game is over destroys the screen and renderer
 
+	bool loadMedia();
 	bool running() {return isRunning;}
+
 	bool isRunning = false;
 	int key_pressed = 0;		//number of key pressed.
+	int invisibility = 0;
+	bool opponent_invisible = false;
 
-	short send_event[7];	
+	short send_event[TAB_SIZE];	
 	SDL_Window *window = nullptr;
 	SDL_Renderer *renderer = nullptr;
 
@@ -35,6 +41,9 @@ public:
 	SDL_Rect Message_rect;
 
 	TTF_Font* Font; 
+	Mix_Chunk* gunshot;
+
+	int my_id;
 
 	player *player1 = nullptr;
 	player *player2 = nullptr;
@@ -42,9 +51,23 @@ public:
 	deque<bullet*> all_bullets;
 };
 
-Game::Game()
+Game::Game(int x)
 {
-	
+	my_id = x;
+}
+
+bool Game::loadMedia()
+{
+	bool success = true;
+
+	//Load sound effects
+    gunshot = Mix_LoadWAV( "./resources/gunshot.wav" );
+    if( gunshot == NULL )
+    {
+        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = false;
+    }
+	return success;
 }
 
 void Game::init(char* title,int xpos,int ypos,int width,int height)
@@ -90,6 +113,22 @@ void Game::init(char* title,int xpos,int ypos,int width,int height)
 	Font = TTF_OpenFont("./resources/font.ttf", 30);
 	SDL_Color Black = {0, 0, 0,255};
 	
+	//Initialize SDL_mixer
+	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 )
+    {
+        printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
+    }
+
+	if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    {
+        printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+    }
+
+	if(loadMedia()==false)
+	{
+		cout<<"Sound not loaded";
+	}
+
 	string boundary;
 	for(int i=0;i<(SCREEN_WIDTH-3);i++)
 	{
@@ -156,6 +195,9 @@ void Game::handleEventsforServer()
 	send_event[5] = -1;		//stores direction of bullet if generated.
 	send_event[6] = player1->health; //for termination of client.	
 
+	if(invisibility==0) send_event[7] = 0;
+	else send_event[7] = invisibility - 1;
+
 	SDL_Event event;
 	SDL_PollEvent(&event);
 	int xmove = 0;
@@ -177,7 +219,8 @@ void Game::handleEventsforServer()
 			case SDLK_v:		if(event.key.repeat==0)
 								{player1->destR = player1->teleport(player1->destR,maze);} break;
 			case SDLK_s: 		if((player1->coins)>0)	
-								{bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->lastDir);
+								{Mix_PlayChannel(-1,gunshot, 0 );
+								bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->lastDir);
 			 					newbullet->init(renderer);
 								all_bullets.push_back(newbullet);
 								player1->coins--;
@@ -185,6 +228,11 @@ void Game::handleEventsforServer()
 								send_event[4] = newbullet->destR.y;
 								send_event[5] = newbullet->direction;}
 								break;
+			case SDLK_w:		if(player1->coins>1)
+								{invisibility =INVISIBLE_TIME; 
+								send_event[7] = invisibility;
+								player1->coins-=2;
+								break;}
 		}
 	}
 	
@@ -206,6 +254,7 @@ void Game::handleEventsforServer()
 
 	send_event[1] = player1->destR.x;
 	send_event[2] = player1->destR.y;
+	send_event[8] = player1->coins;
 }
 
 void Game::eventsFromClient(int16_t array[])
@@ -214,19 +263,21 @@ void Game::eventsFromClient(int16_t array[])
 	{
 		player2->destR.x = array[2];
 		player2->destR.y = array[3];
-		cerr << "A";
+		//cerr << "A";
 		if(array[4]!=-1)				//has a bullet been shot...
 		{
+			Mix_PlayChannel(-1,gunshot, 0 );
 			bullet* newbullet = new bullet(int(array[4]),int(array[5]),int(array[6]));
 			newbullet->init(renderer);
 			all_bullets.push_back(newbullet);
-			player2->coins--;	
 		}
-		cerr << "B";
-		if(array[7]==0)
-		{
-			//isRunning = false;
-		}
+		//cerr << "B";
+		if(array[7]==0) isRunning = false;
+		
+		if(array[8]>0) opponent_invisible = true;
+		else opponent_invisible = false;
+
+		player2->coins = array[9];
 	}
 }
 void Game::handleEventsforClient()
@@ -236,6 +287,9 @@ void Game::handleEventsforClient()
 	send_event[4] = -1;		//stores ypos of bullet if generated
 	send_event[5] = -1;		//stores direction of bullet if generated.
 	send_event[6] = player2->health;	//needed for termination of server
+
+	if(invisibility==0) send_event[7] = 0;
+	else send_event[7] = invisibility - 1;
 
 	SDL_Event event;
 	SDL_PollEvent(&event);
@@ -258,7 +312,8 @@ void Game::handleEventsforClient()
 			case SDLK_v:		if(event.key.repeat==0)
 								{player2->destR = player2->teleport(player2->destR,maze);} break;
 			case SDLK_s: 		if((player2->coins)>0)	
-								{bullet* newbullet = new bullet(player2->destR.x,player2->destR.y,player1->lastDir);
+								{Mix_PlayChannel(-1,gunshot, 0 );
+								bullet* newbullet = new bullet(player2->destR.x,player2->destR.y,player2->lastDir);
 			 					newbullet->init(renderer);
 								all_bullets.push_back(newbullet);
 								player2->coins--;
@@ -266,6 +321,11 @@ void Game::handleEventsforClient()
 								send_event[4] = newbullet->destR.y;
 								send_event[5] = newbullet->direction;}
 								break;
+			case SDLK_w:		if(player2->coins>1)
+								{invisibility =INVISIBLE_TIME; 
+								send_event[7] = invisibility;
+								player2->coins-=2;
+								break;}
 		}
 	}
 	
@@ -287,6 +347,7 @@ void Game::handleEventsforClient()
 
 	send_event[1] = player2->destR.x;
 	send_event[2] = player2->destR.y;
+	send_event[8] = player2->coins;
 }
 
 void Game::eventsFromServer(int16_t array[])
@@ -295,24 +356,28 @@ void Game::eventsFromServer(int16_t array[])
 	{
 		player1->destR.x = array[2];
 		player1->destR.y = array[3];
-
-		if(array[4]!=-1)
+		//cerr << "A";
+		if(array[4]!=-1)				//has a bullet been shot...
 		{
+			Mix_PlayChannel(-1,gunshot, 0 );
 			bullet* newbullet = new bullet(int(array[4]),int(array[5]),int(array[6]));
 			newbullet->init(renderer);
 			all_bullets.push_back(newbullet);
-			player1->coins--;	
 		}
+		//cerr << "B";
+		if(array[7]==0) isRunning = false;
+	
+		if(array[8]>0) opponent_invisible = true;
+		else opponent_invisible = false;
 
-		if(array[7]==0)				//client has been shot
-		{
-			//isRunning = false;
-		}
+		player1->coins = array[9];
 	}
 }
 
 void Game::update()
 {
+	invisibility = max(0,invisibility-1);
+
 	player1->touch(maze,2);			//2 for coins
 	player2->touch(maze,2);
 
@@ -338,15 +403,31 @@ void Game::update()
 		isRunning = false;
 	}
 
-	player1->ForScore(Font,renderer,"PLAYER1 BULLETS : ");
-	player2->ForScore(Font,renderer,"PLAYER2 BULLETS : ");
+	if((my_id==0 && invisibility>0) || (my_id==1 && opponent_invisible))
+	{
+		player1->ForScore(Font,renderer,"INVISIBLE_PLAYER1 BULLETS : ");
+	}
+	else player1->ForScore(Font,renderer,"PLAYER1 BULLETS : ");
+	
+	if((my_id==1 && invisibility>0) || (my_id==0 && opponent_invisible))
+	{
+		player2->ForScore(Font,renderer,"INVISIBLE_PLAYER2 BULLETS : ");
+	}
+	else player2->ForScore(Font,renderer,"PLAYER2 BULLETS : ");
 }
 void Game::render()
 {
 	SDL_RenderClear(renderer);
 	maze->DrawMap(renderer);
-	SDL_RenderCopy(renderer,player1->playerTex,NULL,&(player1->destR));
-	SDL_RenderCopy(renderer,player2->playerTex,NULL,&(player2->destR));
+
+	if(my_id==0 || (my_id==1 && !opponent_invisible))
+	{
+		SDL_RenderCopy(renderer,player1->playerTex,NULL,&(player1->destR));
+	}
+	if(my_id==1 || (my_id==0 && !opponent_invisible))
+	{
+		SDL_RenderCopy(renderer,player2->playerTex,NULL,&(player2->destR));
+	}
 	SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
 
 	//for text in scoreboard....
@@ -365,7 +446,10 @@ void Game::render()
 }
 
 void Game::clean()
-{
+{	
+	Mix_FreeChunk(gunshot);
+	gunshot = nullptr;
+
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
 	SDL_Quit();

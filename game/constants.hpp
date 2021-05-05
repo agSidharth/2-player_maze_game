@@ -13,9 +13,11 @@ const int WEST = 3;
 const int MAX_PLAYERS = 2;
 const int BUF_MAX = 256;
 const int FRAME_TIME = 16666;
+const int TAB_SIZE = 10;
+const int INVISIBLE_TIME = 300;     //5 seconds.
 int TIME = 0;
 int FPS = 60;
 int frameDelay = 1000/FPS;
 int frameStart;
 int frameTime,difference;
-char* TITLE = "game";
+ 

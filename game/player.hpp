@@ -15,9 +15,6 @@ public:
 	SDL_Rect valid_move(SDL_Rect box,int xmove,int ymove,int maze[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE]);
 	SDL_Rect teleport(SDL_Rect box,Map* maze);
 
-	void incoins(int x=1) {coins+=x;}	//increase coins by x(or 1 if not provided)
-	bool spendcoins(int);				//decrease coins
-
 	void touch(Map* maze,int type);
 	void ForScore(TTF_Font* Font,SDL_Renderer *renderer,string intro);
 
@@ -121,17 +118,6 @@ SDL_Rect player::teleport(SDL_Rect box,Map* maze)
 	return box;
 }
 
-bool player::spendcoins(int x)
-{
-	if(coins >= x)
-	{
-		coins -= x;
-		return true;
-	}
-	else
-		return false;
-}
-
 void player::touch(Map* maze,int type)		//(3*PLAYER_SIZE)/4 to for much more efficient touc
 {
 	int xpos = destR.x;
@@ -142,19 +128,19 @@ void player::touch(Map* maze,int type)		//(3*PLAYER_SIZE)/4 to for much more eff
 		maze->map[xpos/TILE_SIZE][ypos/TILE_SIZE] = 0; 
 		coins++;
 	}
-	else if(maze->map[xpos+((3*PLAYER_SIZE)/4)/TILE_SIZE][ypos/TILE_SIZE]==type)
+	else if(maze->map[(xpos+((3*PLAYER_SIZE)/4))/TILE_SIZE][ypos/TILE_SIZE]==type)
 	{
-		maze->map[xpos+((3*PLAYER_SIZE)/4)/TILE_SIZE][ypos/TILE_SIZE] = 0; 
+		maze->map[(xpos+((3*PLAYER_SIZE)/4))/TILE_SIZE][ypos/TILE_SIZE] = 0; 
 		coins++;
 	}
-	else if(maze->map[xpos/TILE_SIZE][ypos+((3*PLAYER_SIZE)/4)/TILE_SIZE]==type)
+	else if(maze->map[xpos/TILE_SIZE][(ypos+((3*PLAYER_SIZE)/4))/TILE_SIZE]==type)
 	{
-		maze->map[xpos/TILE_SIZE][ypos+((3*PLAYER_SIZE)/4)/TILE_SIZE] = 0;
+		maze->map[xpos/TILE_SIZE][(ypos+((3*PLAYER_SIZE)/4))/TILE_SIZE] = 0;
 		coins++;	
 	}
-	else if(maze->map[xpos+((3*PLAYER_SIZE)/4)/TILE_SIZE][ypos+((3*PLAYER_SIZE)/4)/TILE_SIZE]==type)
+	else if(maze->map[(xpos+((3*PLAYER_SIZE)/4))/TILE_SIZE][(ypos+((3*PLAYER_SIZE)/4))/TILE_SIZE]==type)
 	{
-		maze->map[xpos+((3*PLAYER_SIZE)/4)/TILE_SIZE][ypos+((3*PLAYER_SIZE)/4)/TILE_SIZE] = 0;
+		maze->map[(xpos+((3*PLAYER_SIZE)/4))/TILE_SIZE][(ypos+((3*PLAYER_SIZE)/4))/TILE_SIZE] = 0;
 		coins++;
 	}
 	return ;
