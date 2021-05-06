@@ -42,6 +42,8 @@ public:
 
 	TTF_Font* Font; 
 	Mix_Chunk* gunshot;
+	Mix_Chunk* coin_pick;
+	Mix_Chunk* killed_sound;
 
 	int my_id;
 
@@ -63,6 +65,20 @@ bool Game::loadMedia()
 	//Load sound effects
     gunshot = Mix_LoadWAV( "./resources/gunshot.wav" );
     if( gunshot == NULL )
+    {
+        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = false;
+    }
+
+	coin_pick = Mix_LoadWAV( "./resources/coin_pick.wav" );
+    if( coin_pick == NULL )
+    {
+        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = false;
+    }
+
+	killed_sound = Mix_LoadWAV( "./resources/killed_sound.wav" );
+    if(killed_sound == NULL )
     {
         printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
         success = false;
@@ -378,8 +394,8 @@ void Game::update()
 {
 	invisibility = max(0,invisibility-1);
 
-	player1->touch(maze,2);			//2 for coins
-	player2->touch(maze,2);
+	if(player1->touch(maze,2))Mix_PlayChannel(-1,coin_pick, 0 );			//2 for coins
+	if(player2->touch(maze,2))Mix_PlayChannel(-1,coin_pick, 0 );
 
 	int i=0;
 	while(i<(int)all_bullets.size())
@@ -396,6 +412,7 @@ void Game::update()
 
 	if(player1->health==0)
 	{
+		Mix_PlayChannel(-1,killed_sound, 0 );
 		player1->ForScore(Font,renderer,"PLAYER1 : LOSSER ",false);
 		player2->ForScore(Font,renderer,"PLAYER2 : WINNER ",false);
 		isRunning = false;
@@ -403,6 +420,7 @@ void Game::update()
 	}
 	else if(player2->health==0)
 	{
+		Mix_PlayChannel(-1,killed_sound, 0 );
 		player1->ForScore(Font,renderer,"PLAYER1 : WINNER ",false);
 		player2->ForScore(Font,renderer,"PLAYER2 : LOSSER ",false);
 		isRunning = false;
@@ -453,7 +471,7 @@ void Game::render()
 
 int Game::clean()
 {	
-	int won = -1;
+	int won = 0;
 	if(player1->health==0)
 	{
 		cout<<"\n\nPLAYER2 WON ";
@@ -467,6 +485,12 @@ int Game::clean()
 
 	Mix_FreeChunk(gunshot);
 	gunshot = nullptr;
+
+	Mix_FreeChunk(coin_pick);
+	coin_pick = nullptr;
+
+	Mix_FreeChunk(killed_sound);
+	killed_sound = nullptr;
 
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);

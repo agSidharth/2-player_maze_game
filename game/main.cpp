@@ -61,7 +61,8 @@ int main(int argc, char* argv[])
 		cout << "Pass s/c for server or client and server address in case you are client";
 		return 1;
 	}
-    srand(50);
+    int seed = 50;
+    srand(seed);
 	sockaddr_in server_addr, client_addr;
     int sock_server, sock_client;
     char *server_ip_addr = NULL;
@@ -109,7 +110,8 @@ int main(int argc, char* argv[])
 
     while(rep<ROUNDS)
     {
-        srand(50+2);
+        seed = (4*seed)/3;
+        srand(seed);
 		game = new Game(my_id);
         title = title + to_string(my_id+1);
         strcpy(char_title,title.c_str());
