@@ -107,13 +107,15 @@ int main(int argc, char* argv[])
     int won,rep = 0;
     int score[2] = {0};
     char char_title[8];
+    title = title + to_string(my_id+1);
+    string begin;
 
     while(rep<ROUNDS)
     {
         seed = (4*seed)/3;
         srand(seed);
 		game = new Game(my_id);
-        title = title + to_string(my_id+1);
+        
         strcpy(char_title,title.c_str());
         game ->init(char_title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT);
 
@@ -160,8 +162,11 @@ int main(int argc, char* argv[])
 		won = game ->clean();
         score[won]++;
         rep++;
-
+        game = nullptr;
         if(score[0]>ROUNDS/2 || score[1]>ROUNDS/2) break;
+        
+        cout<<"Press a key to start the game";
+        cin>>begin;
     }
     cout<<"\n\nFINAL SCORES :\nPLAYER1 : "<<score[0]<<"\nPLAYER2 : "<<score[1]<<endl;
     if(score[0]>score[1]) cout<<"PLAYER1 WON THE GAME";

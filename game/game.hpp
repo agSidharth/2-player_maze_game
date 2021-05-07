@@ -45,7 +45,7 @@ public:
 	Mix_Chunk* coin_pick;
 	Mix_Chunk* killed_sound;
 
-	int my_id;
+	int my_id,temp_seed;
 
 	player *player1 = nullptr;
 	player *player2 = nullptr;
@@ -442,7 +442,8 @@ void Game::update()
 void Game::render()
 {
 	SDL_RenderClear(renderer);
-	maze->DrawMap(renderer);
+	maze->DrawMap(renderer,temp_seed);
+	temp_seed = (temp_seed+1)%(10000000);
 
 	if((my_id==0 || (my_id==1 && !opponent_invisible)) && player1->health>0)
 	{
