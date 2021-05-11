@@ -48,7 +48,7 @@ public:
 	Mix_Chunk* vent_sound;
 	Mix_Chunk* invisible_sound;
 
-	int my_id,temp_seed,one_time,end_time;
+	int my_id,temp_seed,invisible_one_time,end_time;
 
 	player *player1 = nullptr;
 	player *player2 = nullptr;
@@ -59,7 +59,7 @@ public:
 Game::Game(int x)
 {
 	my_id = x;
-	one_time = 0;
+	invisible_one_time = 0;
 	end_time = 60;
 }
 
@@ -320,11 +320,11 @@ void Game::eventsFromClient(short array[])
 		//cerr << "B";
 		if(array[7]==0) player2->health = 0;
 		
-		if(array[8]>0 && one_time==0)
+		if(array[8]>0 && invisible_one_time==0)
 		{
 			Mix_PlayChannel(-1,invisible_sound,0);
 			opponent_invisible = true;
-			one_time = 1;
+			invisible_one_time = 1;
 		}
 		else if(array[8]>0) 
 		{
@@ -333,7 +333,7 @@ void Game::eventsFromClient(short array[])
 		else 
 		{
 			opponent_invisible = false; 
-			one_time = 0;
+			invisible_one_time = 0;
 		}
 
 		player2->coins = array[9];
@@ -435,11 +435,11 @@ void Game::eventsFromServer(short array[])
 		//cerr << "B";
 		if(array[7]==0) player1->health = 0;
 	
-		if(array[8]>0 && one_time==0)
+		if(array[8]>0 && invisible_one_time==0)
 		{
 			Mix_PlayChannel(-1,invisible_sound,0);
 			opponent_invisible = true;
-			one_time = 1;
+			invisible_one_time = 1;
 		}
 		else if(array[8]>0) 
 		{
@@ -448,7 +448,7 @@ void Game::eventsFromServer(short array[])
 		else 
 		{
 			opponent_invisible = false; 
-			one_time = 0;
+			invisible_one_time = 0;
 		}
 
 		player1->coins = array[9];
@@ -488,7 +488,7 @@ void Game::update()
 	else if(player2->health==0)
 	{	
 		if(isRunning) Mix_PlayChannel(-1,killed_sound, 0 );
-		
+
 		player1->ForScore(Font,renderer,"PLAYER1 : WINNER ",false);
 		player2->ForScore(Font,renderer,"PLAYER2 : LOSSER ",false);
 		player2->coins = 0;
