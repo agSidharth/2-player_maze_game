@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
         game ->init(char_title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT);
         start = true;
 
-		while(game->running())
+		while(game->end_time>0)
 		{	
 			TIME++;
 			frameStart = SDL_GetTicks();
@@ -148,7 +148,9 @@ int main(int argc, char* argv[])
 				SDL_Delay(difference);
 			}
 
-            if(!game->isRunning) sleep(3);
+            if(!game->isRunning) game->end_time--;
+
+            if(game->end_time<=0) {sleep(2); break;}
 		}
 
 		won = game ->clean();

@@ -46,8 +46,9 @@ public:
 	Mix_Chunk* coin_pick;
 	Mix_Chunk* killed_sound;
 	Mix_Chunk* vent_sound;
+	Mix_Chunk* invisible_sound;
 
-	int my_id,temp_seed;
+	int my_id,temp_seed,one_time,end_time;
 
 	player *player1 = nullptr;
 	player *player2 = nullptr;
@@ -58,6 +59,8 @@ public:
 Game::Game(int x)
 {
 	my_id = x;
+	one_time = 0;
+	end_time = 60;
 }
 
 bool Game::loadMedia()
@@ -88,6 +91,13 @@ bool Game::loadMedia()
 
 	vent_sound = Mix_LoadWAV( "./resources/vent_sound.wav" );
     if(vent_sound == NULL )
+    {
+        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = false;
+    }	
+
+	invisible_sound = Mix_LoadWAV( "./resources/vent_sound.wav" );
+    if(invisible_sound == NULL )
     {
         printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
         success = false;
@@ -223,6 +233,15 @@ void Game::handleEventsforServer()
 	if(invisibility==0) send_event[7] = 0;
 	else send_event[7] = invisibility - 1;
 
+	if(!isRunning)
+	{
+		send_event[1] = player1->destR.x;
+		send_event[2] = player1->destR.y;
+		send_event[8] = player1->coins;
+		send_event[6] = player1->health;	//needed for termination of server
+		return;	
+	}
+
 	SDL_Event event;
 	SDL_PollEvent(&event);
 	int xmove = 0;
@@ -245,7 +264,7 @@ void Game::handleEventsforServer()
 								{player1->destR = player1->teleport(player1->destR,maze,vent_sound);} break;
 			case SDLK_s: 		if((player1->coins)>0)	
 								{Mix_PlayChannel(-1,gunshot, 0 );
-								bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->lastDir);
+								bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->lastDir,0);
 			 					newbullet->init(renderer);
 								all_bullets.push_back(newbullet);
 								player1->coins--;
@@ -254,7 +273,8 @@ void Game::handleEventsforServer()
 								send_event[5] = newbullet->direction;}
 								break;
 			case SDLK_w:		if(player1->coins>1)
-								{invisibility =INVISIBLE_TIME; 
+								{Mix_PlayChannel(-1,invisible_sound,0);
+								invisibility =INVISIBLE_TIME; 
 								send_event[7] = invisibility;
 								player1->coins-=2;
 								break;}
@@ -285,7 +305,7 @@ void Game::handleEventsforServer()
 
 void Game::eventsFromClient(short array[])
 {
-	if(array[1] == 1)
+	if(array[1] == 1 && isRunning)
 	{
 		player2->destR.x = array[2];
 		player2->destR.y = array[3];
@@ -293,15 +313,28 @@ void Game::eventsFromClient(short array[])
 		if(array[4]!=-1)				//has a bullet been shot...
 		{
 			Mix_PlayChannel(-1,gunshot, 0 );
-			bullet* newbullet = new bullet(int(array[4]),int(array[5]),int(array[6]));
+			bullet* newbullet = new bullet(int(array[4]),int(array[5]),int(array[6]),1);
 			newbullet->init(renderer);
 			all_bullets.push_back(newbullet);
 		}
 		//cerr << "B";
 		if(array[7]==0) player2->health = 0;
 		
-		if(array[8]>0) opponent_invisible = true;
-		else opponent_invisible = false;
+		if(array[8]>0 && one_time==0)
+		{
+			Mix_PlayChannel(-1,invisible_sound,0);
+			opponent_invisible = true;
+			one_time = 1;
+		}
+		else if(array[8]>0) 
+		{
+			opponent_invisible = true;
+		}
+		else 
+		{
+			opponent_invisible = false; 
+			one_time = 0;
+		}
 
 		player2->coins = array[9];
 	}
@@ -315,6 +348,14 @@ void Game::handleEventsforClient()
 	
 	if(invisibility==0) send_event[7] = 0;
 	else send_event[7] = invisibility - 1;
+
+	if(!isRunning)
+	{
+		send_event[1] = player2->destR.x;
+		send_event[2] = player2->destR.y;
+		send_event[8] = player2->coins;
+		send_event[6] = player2->health;	//needed for termination of server
+	}
 
 	SDL_Event event;
 	SDL_PollEvent(&event);
@@ -338,7 +379,7 @@ void Game::handleEventsforClient()
 								{player2->destR = player2->teleport(player2->destR,maze,vent_sound);} break;
 			case SDLK_s: 		if((player2->coins)>0)	
 								{Mix_PlayChannel(-1,gunshot, 0 );
-								bullet* newbullet = new bullet(player2->destR.x,player2->destR.y,player2->lastDir);
+								bullet* newbullet = new bullet(player2->destR.x,player2->destR.y,player2->lastDir,1);
 			 					newbullet->init(renderer);
 								all_bullets.push_back(newbullet);
 								player2->coins--;
@@ -347,7 +388,8 @@ void Game::handleEventsforClient()
 								send_event[5] = newbullet->direction;}
 								break;
 			case SDLK_w:		if(player2->coins>1)
-								{invisibility =INVISIBLE_TIME; 
+								{Mix_PlayChannel(-1,invisible_sound,0);
+								invisibility =INVISIBLE_TIME; 
 								send_event[7] = invisibility;
 								player2->coins-=2;
 								break;}
@@ -378,7 +420,7 @@ void Game::handleEventsforClient()
 
 void Game::eventsFromServer(short array[])
 {
-	if(array[1] == 1)
+	if(array[1] == 1 && isRunning)
 	{
 		player1->destR.x = array[2];
 		player1->destR.y = array[3];
@@ -386,15 +428,28 @@ void Game::eventsFromServer(short array[])
 		if(array[4]!=-1)				//has a bullet been shot...
 		{
 			Mix_PlayChannel(-1,gunshot, 0 );
-			bullet* newbullet = new bullet(int(array[4]),int(array[5]),int(array[6]));
+			bullet* newbullet = new bullet(int(array[4]),int(array[5]),int(array[6]),0);
 			newbullet->init(renderer);
 			all_bullets.push_back(newbullet);
 		}
 		//cerr << "B";
 		if(array[7]==0) player1->health = 0;
 	
-		if(array[8]>0) opponent_invisible = true;
-		else opponent_invisible = false;
+		if(array[8]>0 && one_time==0)
+		{
+			Mix_PlayChannel(-1,invisible_sound,0);
+			opponent_invisible = true;
+			one_time = 1;
+		}
+		else if(array[8]>0) 
+		{
+			opponent_invisible = true;
+		}
+		else 
+		{
+			opponent_invisible = false; 
+			one_time = 0;
+		}
 
 		player1->coins = array[9];
 	}
@@ -408,7 +463,7 @@ void Game::update()
 	if(player2->touch(maze,2))Mix_PlayChannel(-1,coin_pick, 0 );
 
 	int i=0;
-	while(i<(int)all_bullets.size())
+	while(i<(int)all_bullets.size() && isRunning)
 	{
 		if(all_bullets[i]->move(maze->map,player1,player2) == false)
 		{
@@ -422,17 +477,21 @@ void Game::update()
 
 	if(player1->health==0)
 	{
-		Mix_PlayChannel(-1,killed_sound, 0 );
+		if(isRunning) Mix_PlayChannel(-1,killed_sound, 0 );
+
 		player1->ForScore(Font,renderer,"PLAYER1 : LOSSER ",false);
+		player1->coins = 0;
 		player2->ForScore(Font,renderer,"PLAYER2 : WINNER ",false);
 		isRunning = false;
 		return ;
 	}
 	else if(player2->health==0)
-	{
-		Mix_PlayChannel(-1,killed_sound, 0 );
+	{	
+		if(isRunning) Mix_PlayChannel(-1,killed_sound, 0 );
+		
 		player1->ForScore(Font,renderer,"PLAYER1 : WINNER ",false);
 		player2->ForScore(Font,renderer,"PLAYER2 : LOSSER ",false);
+		player2->coins = 0;
 		isRunning = false;
 		return ;
 	}
@@ -505,6 +564,9 @@ int Game::clean()
 
 	Mix_FreeChunk(vent_sound);
 	vent_sound = nullptr;
+
+	Mix_FreeChunk(invisible_sound);
+	invisible_sound = nullptr;
 
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
