@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 		cout << "Pass s/c for server or client and server address in case you are client";
 		return 1;
 	}
-    int seed = 50;
+    int seed = 32;
     srand(seed);
 	sockaddr_in server_addr, client_addr;
     int sock_server, sock_client;

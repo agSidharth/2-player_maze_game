@@ -65,9 +65,8 @@ void* server_receive_loop(void *arg) {
         client_addr = receive_data(socket, tab);
         client_pos = addr_pos_in_tab(client_addr, clients_addresses, number_of_connected_clients);
         if (its_an_old_client(client_pos)) {
-        	if(tab[0] == 1)
+        	if(tab[1] == 1)
         	{
-        		send_data(socket,clients_addresses[1],tab1,(TAB_SIZE+1));
         		send_data(socket,clients_addresses[1-client_pos],tab,(TAB_SIZE+1));
         		/*cerr << "Client : "<<client_pos << " ";
         		for(int i=0;i<(TAB_SIZE+1);i++)
