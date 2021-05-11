@@ -17,7 +17,7 @@
 #define SERVER_PORT 1234
 
 void prepare_server(int *sock, struct sockaddr_in *server_sock);
-void send_data(int sock, struct sockaddr_in client, int16_t tab[], int size);
+void send_data(int sock, struct sockaddr_in client, short tab[], int size);
 void* server_receive_loop(void *arg);
 void* server_send_loop(void *arg);
 int its_an_old_client(int client_pos);
@@ -39,16 +39,16 @@ void prepare_server(int *sock, struct sockaddr_in *server_sock) {
     }
 }
 
-struct sockaddr_in receive_data(int sock, int16_t data[]) {
+struct sockaddr_in receive_data(int sock, short data[]) {
     struct sockaddr_in addr;
     socklen_t addr_size = sizeof(struct sockaddr);
-    recvfrom(sock, data, sizeof(int16_t) * (TAB_SIZE+1), 0, (struct sockaddr*)&addr, &addr_size);
+    recvfrom(sock, data, sizeof(short) * (TAB_SIZE+1), 0, (struct sockaddr*)&addr, &addr_size);
     return addr;
 }
 
-void send_data(int sock, struct sockaddr_in client, int16_t data[], int size) {
+void send_data(int sock, struct sockaddr_in client, short data[], int size) {
     socklen_t addr_size = sizeof(struct sockaddr);
-    sendto(sock, data, sizeof(int16_t) * size, 0, (struct sockaddr*)&client, addr_size);
+    sendto(sock, data, sizeof(short) * size, 0, (struct sockaddr*)&client, addr_size);
 }
 
 void* server_receive_loop(void *arg) {
@@ -74,7 +74,7 @@ void* server_receive_loop(void *arg) {
         }
         if (tab[0] == -1 && client_pos < MAX_PLAYERS) {
             add_adr_to_list(client_pos, &client_addr);
-            int16_t tab[3];
+            short tab[3];
             tab[0] = -1;
             tab[1] = client_pos;
             connected += 1;

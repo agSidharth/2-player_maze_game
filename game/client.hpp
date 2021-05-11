@@ -17,8 +17,8 @@
 #define SERVER_PORT 1234
 
 void prepare_client(int *sock, struct sockaddr_in *client_addr);
-void send_to_server(int sock, struct sockaddr_in serv_addr, int16_t id, int16_t keys[]);
-int client_listen(int sock, int16_t *tab);
+void send_to_server(int sock, struct sockaddr_in serv_addr, short id, short keys[]);
+int client_listen(int sock, short *tab);
 
 void prepare_client(int *sock, struct sockaddr_in *client_addr) {
     if ((*sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -30,7 +30,7 @@ void prepare_client(int *sock, struct sockaddr_in *client_addr) {
     }
 }
 
-void send_to_server(int sock, struct sockaddr_in serv_addr, int16_t id, int16_t keys[]) {
+void send_to_server(int sock, struct sockaddr_in serv_addr, short id, short keys[]) {
     short tab[TAB_SIZE+1];
     tab[0] = id;
     for(int i=0;i<TAB_SIZE;i++)
@@ -45,8 +45,8 @@ void send_to_server(int sock, struct sockaddr_in serv_addr, int16_t id, int16_t 
  
 }
 
-int client_listen(int sock, int16_t *tab){
-    int length = recvfrom(sock, tab, sizeof(int16_t) * BUF_MAX, 0, NULL, 0);
+int client_listen(int sock, short *tab){
+    int length = recvfrom(sock, tab, sizeof(short) * BUF_MAX, 0, NULL, 0);
     /*for(int i=0;i<length;i++)
     {
     	cerr << tab[i];

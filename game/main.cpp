@@ -20,7 +20,7 @@ short tab1[(TAB_SIZE+1)];
 using namespace std;
 
 int total_bullets = 0;
-int16_t my_id = -1;		//server has id 0 and client has 1
+short my_id = -1;		//server has id 0 and client has 1
 //int in_c_loop =0;
 void receive_new_id(int id) {
     my_id = id;
@@ -33,7 +33,7 @@ bool start = false;
 Game* game = nullptr;
 void* client_loop(void *arg) {
     int socket = *((int *) arg);
-    int16_t tab[BUF_MAX];
+    short tab[BUF_MAX];
     int id;
     //in_c_loop = 1;
     while (1) {

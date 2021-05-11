@@ -18,8 +18,8 @@ public:
 	void init(char* title,int xpos,int ypos,int width,int height);			//Initialize the game window for first time..
 	void handleEventsforServer();	
 	void handleEventsforClient();	
-	void eventsFromClient(int16_t array[]);
-	void eventsFromServer(int16_t array[]);
+	void eventsFromClient(short array[]);
+	void eventsFromServer(short array[]);
 
 	void update();
 	void render();				//Change the screen being rendered and updates it.
@@ -273,7 +273,7 @@ void Game::handleEventsforServer()
 	send_event[8] = player1->coins;
 }
 
-void Game::eventsFromClient(int16_t array[])
+void Game::eventsFromClient(short array[])
 {
 	if(array[1] == 1)
 	{
@@ -366,7 +366,7 @@ void Game::handleEventsforClient()
 	send_event[8] = player2->coins;
 }
 
-void Game::eventsFromServer(int16_t array[])
+void Game::eventsFromServer(short array[])
 {
 	if(array[1] == 1)
 	{
