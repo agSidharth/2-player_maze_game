@@ -13,7 +13,7 @@ public:
 	player(int x,int y,int z,int w);
 	void init(SDL_Renderer *renderer,string path);						//initialize the player
 	SDL_Rect valid_move(SDL_Rect box,int xmove,int ymove,int maze[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE]);
-	SDL_Rect teleport(SDL_Rect box,Map* maze);
+	SDL_Rect teleport(SDL_Rect box,Map* maze,Mix_Chunk* vent_sound);
 
 	bool touch(Map* maze,int type);
 	void ForScore(TTF_Font* Font,SDL_Renderer *renderer,string intro,bool add);
@@ -99,11 +99,12 @@ SDL_Rect player::valid_move(SDL_Rect box,int xmove,int ymove,int map[SCREEN_WIDT
 	return temp;
 }
 
-SDL_Rect player::teleport(SDL_Rect box,Map* maze)
+SDL_Rect player::teleport(SDL_Rect box,Map* maze,Mix_Chunk* vent_sound)
 {
 	SDL_Rect temp_vent = maze->first_vent;
 	if(SDL_HasIntersection(&temp_vent,&box)==SDL_TRUE)
 	{
+		Mix_PlayChannel(-1,vent_sound, 0 );
 		box.x = maze->second_vent.x;
 		box.y = maze->second_vent.y;
 		return box;
@@ -111,6 +112,7 @@ SDL_Rect player::teleport(SDL_Rect box,Map* maze)
 	temp_vent = maze->second_vent;
 	if(SDL_HasIntersection(&temp_vent,&box)==SDL_TRUE)
 	{
+		Mix_PlayChannel(-1,vent_sound, 0 );
 		box.x = maze->first_vent.x;
 		box.y = maze->first_vent.y;
 		return box;

@@ -45,6 +45,7 @@ public:
 	Mix_Chunk* gunshot;
 	Mix_Chunk* coin_pick;
 	Mix_Chunk* killed_sound;
+	Mix_Chunk* vent_sound;
 
 	int my_id,temp_seed;
 
@@ -84,6 +85,13 @@ bool Game::loadMedia()
         printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
         success = false;
     }
+
+	vent_sound = Mix_LoadWAV( "./resources/vent_sound.wav" );
+    if(vent_sound == NULL )
+    {
+        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = false;
+    }	
 	return success;
 }
 
@@ -228,13 +236,13 @@ void Game::handleEventsforServer()
 		key_pressed++;
 		switch (event.key.keysym.sym)
     	{
-			case SDLK_ESCAPE:	isRunning = false;
+			case SDLK_ESCAPE:	player1->health = 0;	//the one who leaves the game first loses...
         	case SDLK_LEFT: 	player1->playerDir = 3;player1->lastDir=player1->playerDir;break;
         	case SDLK_RIGHT: 	player1->playerDir = 1;player1->lastDir=player1->playerDir;break;
         	case SDLK_UP:    	player1->playerDir = 0;player1->lastDir=player1->playerDir;break;
         	case SDLK_DOWN:  	player1->playerDir = 2;player1->lastDir=player1->playerDir;break;
 			case SDLK_v:		if(event.key.repeat==0)
-								{player1->destR = player1->teleport(player1->destR,maze);} break;
+								{player1->destR = player1->teleport(player1->destR,maze,vent_sound);} break;
 			case SDLK_s: 		if((player1->coins)>0)	
 								{Mix_PlayChannel(-1,gunshot, 0 );
 								bullet* newbullet = new bullet(player1->destR.x,player1->destR.y,player1->lastDir);
@@ -272,6 +280,7 @@ void Game::handleEventsforServer()
 	send_event[1] = player1->destR.x;
 	send_event[2] = player1->destR.y;
 	send_event[8] = player1->coins;
+	send_event[6] = player1->health;	//needed for termination of server
 }
 
 void Game::eventsFromClient(short array[])
@@ -289,7 +298,7 @@ void Game::eventsFromClient(short array[])
 			all_bullets.push_back(newbullet);
 		}
 		//cerr << "B";
-		if(array[7]==0) isRunning = false;
+		if(array[7]==0) player2->health = 0;
 		
 		if(array[8]>0) opponent_invisible = true;
 		else opponent_invisible = false;
@@ -303,8 +312,7 @@ void Game::handleEventsforClient()
 	send_event[3] = -1;		//stores xpos of bullet if generated.
 	send_event[4] = -1;		//stores ypos of bullet if generated
 	send_event[5] = -1;		//stores direction of bullet if generated.
-	send_event[6] = player2->health;	//needed for termination of server
-
+	
 	if(invisibility==0) send_event[7] = 0;
 	else send_event[7] = invisibility - 1;
 
@@ -321,13 +329,13 @@ void Game::handleEventsforClient()
 		key_pressed++;
 		switch (event.key.keysym.sym)
     	{
-			case SDLK_ESCAPE:	isRunning = false;
+			case SDLK_ESCAPE:	player2->health = 0;	//the one who leaves the game first loses...
         	case SDLK_LEFT: 	player2->playerDir = 3;player2->lastDir=player2->playerDir;break;
         	case SDLK_RIGHT: 	player2->playerDir = 1;player2->lastDir=player2->playerDir;break;
         	case SDLK_UP:    	player2->playerDir = 0;player2->lastDir=player2->playerDir;break;
         	case SDLK_DOWN:  	player2->playerDir = 2;player2->lastDir=player2->playerDir;break;
 			case SDLK_v:		if(event.key.repeat==0)
-								{player2->destR = player2->teleport(player2->destR,maze);} break;
+								{player2->destR = player2->teleport(player2->destR,maze,vent_sound);} break;
 			case SDLK_s: 		if((player2->coins)>0)	
 								{Mix_PlayChannel(-1,gunshot, 0 );
 								bullet* newbullet = new bullet(player2->destR.x,player2->destR.y,player2->lastDir);
@@ -365,6 +373,7 @@ void Game::handleEventsforClient()
 	send_event[1] = player2->destR.x;
 	send_event[2] = player2->destR.y;
 	send_event[8] = player2->coins;
+	send_event[6] = player2->health;	//needed for termination of server
 }
 
 void Game::eventsFromServer(short array[])
@@ -382,7 +391,7 @@ void Game::eventsFromServer(short array[])
 			all_bullets.push_back(newbullet);
 		}
 		//cerr << "B";
-		if(array[7]==0) isRunning = false;
+		if(array[7]==0) player1->health = 0;
 	
 		if(array[8]>0) opponent_invisible = true;
 		else opponent_invisible = false;
@@ -494,8 +503,13 @@ int Game::clean()
 	Mix_FreeChunk(killed_sound);
 	killed_sound = nullptr;
 
+	Mix_FreeChunk(vent_sound);
+	vent_sound = nullptr;
+
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
+	Mix_Quit();
+	IMG_Quit();
 	SDL_Quit();
 
 	window = nullptr;

@@ -35,10 +35,10 @@ bullet::bullet(int x,int y,int dir)
 	destR.h = BULLET_SIZE;
 	switch (dir)
 	{
-		case 0:	destR.x = x; destR.y = y - (PLAYER_SIZE+2); break;
-		case 1: destR.x = x + (PLAYER_SIZE+2); destR.y = y; break;
-		case 2: destR.x = x; destR.y = y + (PLAYER_SIZE+2); break;
-		case 3: destR.x = x - (PLAYER_SIZE+2); destR.y = y; break;
+		case 0:	destR.x = x; destR.y = y - (PLAYER_SIZE+1); break;
+		case 1: destR.x = x + (PLAYER_SIZE+1); destR.y = y; break;
+		case 2: destR.x = x; destR.y = y + (PLAYER_SIZE+1); break;
+		case 3: destR.x = x - (PLAYER_SIZE+1); destR.y = y; break;
 	}
 	direction = dir;
 }
