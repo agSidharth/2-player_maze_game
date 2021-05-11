@@ -56,9 +56,9 @@ void* client_loop(void *arg) {
 int main(int argc, char* argv[])
 {
 	
-	if( (argc <3 || argc >4)  )
+	if( (argc <2 || argc >4)  )
 	{
-		cout << "Pass s/c for server or client and server address in case you are client";
+		cout << "Pass s/c for server or client and server address in case you are client.. Can also pass seed";
 		return 1;
 	}
     int seed = 32;
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
     	my_id = -1;
     	server_ip_addr = (char*)(malloc(16 * sizeof(char)));
         server_ip_addr = argv[2];
-        seed = atoi(argv[3]);
+        if(argc == 4)seed = atoi(argv[3]);
     }
     
     pthread_t thread_id_server, thread_id_client;
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     	my_id = -1;
         prepare_server(&sock_server, &server_addr);
         pthread_create(&thread_id_server, NULL, server_receive_loop, &sock_server);
-        seed = atoi(argv[2]);
+        if(argc == 3) seed = atoi(argv[2]);
         
     }
 
