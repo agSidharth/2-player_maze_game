@@ -28,7 +28,9 @@ void receive_new_id(int id) {
     cout << "my_id is now: "<<my_id<<"\n";
 }
 
-Game* game;
+bool start = false;
+
+Game* game = nullptr;
 void* client_loop(void *arg) {
     int socket = *((int *) arg);
     int16_t tab[BUF_MAX];
@@ -41,11 +43,11 @@ void* client_loop(void *arg) {
             receive_new_id(tab[1]);
             //connected = 1;
         }
-        if(tab[0]==1)
+        if(tab[0]==1 && start)
         {
             game -> eventsFromClient(tab);
         }
-        if(tab[0]==0)
+        if(tab[0]==0 && start)
         {
             game -> eventsFromServer(tab);
         }
@@ -56,7 +58,7 @@ void* client_loop(void *arg) {
 int main(int argc, char* argv[])
 {
 	//cerr << "A";
-	if( (argc <2 || argc >3)  )
+	if( (argc <3 || argc >4)  )
 	{
 		cout << "Pass s/c for server or client and server address in case you are client";
 		return 1;
@@ -72,6 +74,7 @@ int main(int argc, char* argv[])
     	my_id = -1;
     	server_ip_addr = (char*)(malloc(16 * sizeof(char)));
         server_ip_addr = argv[2];
+        seed = atoi(argv[3]);
     }
     //cerr << "A";
     pthread_t thread_id_server, thread_id_client;
@@ -82,6 +85,7 @@ int main(int argc, char* argv[])
     	my_id = -1;
         prepare_server(&sock_server, &server_addr);
         pthread_create(&thread_id_server, NULL, server_receive_loop, &sock_server);
+        seed = atoi(argv[2]);
         //cerr << "HIII" << connected;
     }
     //cerr << "B";
@@ -118,6 +122,7 @@ int main(int argc, char* argv[])
         
         strcpy(char_title,title.c_str());
         game ->init(char_title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT);
+        start = true;
 
 		while(game->running())
 		{	
@@ -162,11 +167,10 @@ int main(int argc, char* argv[])
 		won = game ->clean();
         score[won]++;
         rep++;
+        start = false;
         game = nullptr;
         if(score[0]>ROUNDS/2 || score[1]>ROUNDS/2) break;
         
-        cout<<"Press a key to start the game";
-        cin>>begin;
     }
     cout<<"\n\nFINAL SCORES :\nPLAYER1 : "<<score[0]<<"\nPLAYER2 : "<<score[1]<<endl;
     if(score[0]>score[1]) cout<<"PLAYER1 WON THE GAME";
