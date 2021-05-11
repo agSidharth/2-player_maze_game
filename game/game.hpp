@@ -355,6 +355,7 @@ void Game::handleEventsforClient()
 		send_event[2] = player2->destR.y;
 		send_event[8] = player2->coins;
 		send_event[6] = player2->health;	//needed for termination of server
+		return;
 	}
 
 	SDL_Event event;
