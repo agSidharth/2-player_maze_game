@@ -63,13 +63,6 @@ void* server_receive_loop(void *arg) {
         	if(tab[1] == 1)
         	{
         		send_data(socket,clients_addresses[1-client_pos],tab,(TAB_SIZE+1));
-        		/*cerr << "Client : "<<client_pos << " ";
-        		for(int i=0;i<(TAB_SIZE+1);i++)
-        		{
-        			cerr << tab[i] << " ";
-        		}
-        		cerr << "\n";
-        		//cerr << "Send data is working";*/
         	}
         }
         if (tab[0] == -1 && client_pos < MAX_PLAYERS) {
