@@ -515,7 +515,7 @@ void Game::render()
 
 	if(invisibility>0 || opponent_invisible)
 	{
-		SDL_SetRenderDrawColor(renderer,0,0,0,255);
+		SDL_SetRenderDrawColor(renderer,255,204,203,255);
 	}
 	else 
 	{
