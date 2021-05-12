@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
             cerr << "Does it reach here";
         	server_ip_addr = (char*)(malloc(16 * sizeof(char)));
             server_ip_addr = argv[2];
-            if(argc == 4)seed = atoi(argv[3]);
+            if(argc == 4) seed = atoi(argv[3]);
             srand(seed);
         }
         
@@ -183,6 +183,6 @@ int main(int argc, char* argv[])
         number_of_connected_clients = 0;
         cout << "___PLAY_AGAIN(Y/N)___\n";
         cin >> c;
-       // cout << c << " is entered" << endl;
+        cout << c << " is entered" << endl;
     }
 }
