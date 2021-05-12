@@ -512,6 +512,16 @@ void Game::update()
 void Game::render()
 {
 	SDL_RenderClear(renderer);
+
+	if(invisibility>0 || opponent_invisible)
+	{
+		SDL_SetRenderDrawColor(renderer,0,0,0,255);
+	}
+	else 
+	{
+		SDL_SetRenderDrawColor(renderer,128,128,128,255);	
+	}
+
 	maze->DrawMap(renderer,temp_seed);
 	temp_seed = (temp_seed+1)%(10000000);
 

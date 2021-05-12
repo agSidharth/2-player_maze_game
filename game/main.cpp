@@ -68,10 +68,10 @@ int main(int argc, char* argv[])
 
     while(c=='y' || c=='Y')
     {
-        cout <<endl;
         sockaddr_in server_addr, client_addr;
         int sock_server, sock_client;
         char *server_ip_addr = NULL;
+
         if (argv[1][0] == 'c') {
         	my_id = -1;
             //usleep(200);
@@ -185,6 +185,5 @@ int main(int argc, char* argv[])
         number_of_connected_clients = 0;
         cout << "___PLAY_AGAIN(Y/N)___\n";
         cin >> c;
-        cout<<c<<" is entered"<<endl;
     }
 }
