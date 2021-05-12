@@ -64,16 +64,18 @@ int main(int argc, char* argv[])
     int seed = 32;
     srand(seed);
     char c = 'y';
+    int score[2] = {0};
 
     while(c=='y' || c=='Y')
     {
+        cout <<endl;
         sockaddr_in server_addr, client_addr;
         int sock_server, sock_client;
         char *server_ip_addr = NULL;
         if (argv[1][0] == 'c') {
         	my_id = -1;
-            usleep(200);
-            cerr << "Does it reach here";
+            //usleep(200);
+            //cerr << "Does it reach here";
         	server_ip_addr = (char*)(malloc(16 * sizeof(char)));
             server_ip_addr = argv[2];
             if(argc == 4) seed = atoi(argv[3]);
@@ -85,7 +87,7 @@ int main(int argc, char* argv[])
         client_addr = client_sock_addr();
 
         if(argv[1][0] == 's') {
-            cerr << "and here";
+            //cerr << "and here";
         	my_id = -1;
             prepare_server(&sock_server, &server_addr);
             pthread_create(&thread_id_server, NULL, server_receive_loop, &sock_server);
@@ -113,7 +115,7 @@ int main(int argc, char* argv[])
        
         string title = "PLAYER";
         int won,rep = 0;
-        int score[2] = {0};
+        
         char char_title[8];
         title = title + to_string(my_id+1);
         string begin;
@@ -183,6 +185,6 @@ int main(int argc, char* argv[])
         number_of_connected_clients = 0;
         cout << "___PLAY_AGAIN(Y/N)___\n";
         cin >> c;
-        cout << c << " is entered" << endl;
+        cout<<c<<" is entered"<<endl;
     }
 }

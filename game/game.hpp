@@ -66,7 +66,7 @@ Game::Game(int x)
 bool Game::loadMedia()
 {
 	bool success = true;
-
+	
 	//Load sound effects
     gunshot = Mix_LoadWAV( "./resources/gunshot.wav" );
     if( gunshot == NULL )
