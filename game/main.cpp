@@ -62,10 +62,21 @@ int main(int argc, char* argv[])
 		return 1;
 	}
     int seed = 32;
-    int var_seed = 32;
+    //int var_seed = 32;
     srand(seed);
     string c = "y";
     int score[2] = {0};
+    if (argv[1][0] == 'c')
+    {
+        if(argc == 4) seed = atoi(argv[3]);
+        srand(seed);
+    }
+    if (argv[1][0] == 's')
+    {
+        if(argc == 3) seed = atoi(argv[2]);
+        srand(seed);
+    }
+
 
     while(c=="y" || c=="Y")
     {
@@ -73,15 +84,14 @@ int main(int argc, char* argv[])
         int sock_server, sock_client;
         char *server_ip_addr = NULL;
 
-        seed = var_seed;
+       // seed = var_seed;
         if (argv[1][0] == 'c') {
         	my_id = -1;
             //usleep(200);
             //cerr << "Does it reach here";
         	server_ip_addr = (char*)(malloc(16 * sizeof(char)));
             server_ip_addr = argv[2];
-            if(argc == 4) seed = atoi(argv[3]);
-            srand(seed);
+            
         }
         
         pthread_t thread_id_server, thread_id_client;
@@ -93,9 +103,6 @@ int main(int argc, char* argv[])
         	my_id = -1;
             prepare_server(&sock_server, &server_addr);
             pthread_create(&thread_id_server, NULL, server_receive_loop, &sock_server);
-            if(argc == 3) seed = atoi(argv[2]);
-            srand(seed);
-            
         }
 
         prepare_client(&sock_client, &client_addr);
@@ -182,7 +189,7 @@ int main(int argc, char* argv[])
         pthread_cancel(thread_id_server);
         number_of_connected_clients = 0;
         //c = "n";
-        var_seed = (var_seed*4)/3;
+       // var_seed = (var_seed*4)/3;
         
         cin>>c;
     }
