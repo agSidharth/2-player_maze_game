@@ -596,6 +596,7 @@ int Game::clean()
 	player2 = nullptr;
 	maze->clean();
 	maze = nullptr;
+	Mix_CloseAudio();
 	
 	cout<<"\nROUND OVER"<<endl; 
 	return won;
