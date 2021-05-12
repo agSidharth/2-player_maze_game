@@ -62,16 +62,18 @@ int main(int argc, char* argv[])
 		return 1;
 	}
     int seed = 32;
+    int var_seed = 32;
     srand(seed);
-    char c = 'y';
+    string c = "y";
     int score[2] = {0};
 
-    while(c=='y' || c=='Y')
+    while(c=="y" || c=="Y")
     {
         sockaddr_in server_addr, client_addr;
         int sock_server, sock_client;
         char *server_ip_addr = NULL;
 
+        seed = var_seed;
         if (argv[1][0] == 'c') {
         	my_id = -1;
             //usleep(200);
@@ -120,70 +122,68 @@ int main(int argc, char* argv[])
         title = title + to_string(my_id+1);
         string begin;
 
-        while(rep<ROUNDS)
-        {
-            seed = (4*seed)/3;
-            srand(seed);
-    		game = new Game(my_id);
+        seed = (4*seed)/3;
+        srand(seed);
+    	game = new Game(my_id);
             
-            strcpy(char_title,title.c_str());
-            game ->init(char_title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT);
-            start = true;
+        strcpy(char_title,title.c_str());
+        game ->init(char_title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT);
+        start = true;
 
-    		while(game->end_time>0)
-    		{	
-    			TIME++;
-    			frameStart = SDL_GetTicks();
+    	while(game->end_time>0)
+    	{	
+    		TIME++;
+    		frameStart = SDL_GetTicks();
 
-    			if(my_id == 0)
-    			{
-    				game->handleEventsforServer();
-                    send_to_server(sock_client, server_addr, my_id, game->send_event);
-                    
-    			}
-    			if(my_id == 1)
-    			{
-    				game -> handleEventsforClient();
-                    send_to_server(sock_client, server_addr, my_id, game->send_event);
-    			}
-    			game->update();
-    			game->render();
+   			if(my_id == 0)
+   			{
+    			game->handleEventsforServer();
+                send_to_server(sock_client, server_addr, my_id, game->send_event);
+              
+    		}
+    		if(my_id == 1)
+    		{
+    			game -> handleEventsforClient();
+                send_to_server(sock_client, server_addr, my_id, game->send_event);
+    		}
+    		game->update();
+    		game->render();
 
-    			frameTime = SDL_GetTicks() - frameStart;
+    		frameTime = SDL_GetTicks() - frameStart;
 
-    			difference = frameDelay - frameTime;
-    			if(difference>0)
-    			{
-    				SDL_Delay(difference);
-    			}
-
-                if(!game->isRunning) game->end_time--;
-
-                if(game->end_time<=0) {sleep(2); break;}
+    		difference = frameDelay - frameTime;
+    		if(difference>0)
+    		{
+    			SDL_Delay(difference);
     		}
 
-    		won = game ->clean();
-            score[won]++;
-            rep++;
-            start = false;
-            game = nullptr;
-            if(score[0]>ROUNDS/2 || score[1]>ROUNDS/2) break;
-            
-        }
+            if(!game->isRunning) game->end_time--;
+
+            if(game->end_time<=0) {sleep(2); break;}
+    	}
+
+    	won = game ->clean();
+        score[won]++;
+        rep++;
+        start = false;
+        game = nullptr;
+        
         cout<<"\n\nFINAL SCORES :\nPLAYER1 : "<<score[0]<<"\nPLAYER2 : "<<score[1]<<endl;
         if(score[0]>score[1]) cout<<"PLAYER1 WON THE GAME";
         else if(score[0]<score[1]) cout<<"PLAYER2 WON THE GAME";
         else cout<<"TIE";
 
         cout<<"\n........GAME OVER...........\n";
-
+        cout << "___PLAY_AGAIN(Y/N)___\n";
 
         close(sock_client);
         close(sock_server);
         pthread_cancel(thread_id_client);
         pthread_cancel(thread_id_server);
         number_of_connected_clients = 0;
-        cout << "___PLAY_AGAIN(Y/N)___\n";
-        cin >> c;
+        //c = "n";
+        var_seed = (var_seed*4)/3;
+        
+        cin>>c;
     }
 }
