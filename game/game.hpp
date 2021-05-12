@@ -66,7 +66,7 @@ Game::Game(int x)
 bool Game::loadMedia()
 {
 	bool success = true;
-	
+
 	//Load sound effects
     gunshot = Mix_LoadWAV( "./resources/gunshot.wav" );
     if( gunshot == NULL )
@@ -96,7 +96,7 @@ bool Game::loadMedia()
         success = false;
     }	
 
-	invisible_sound = Mix_LoadWAV( "./resources/vent_sound.wav" );
+	invisible_sound = Mix_LoadWAV( "./resources/invisible_sound.wav" );
     if(invisible_sound == NULL )
     {
         printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
