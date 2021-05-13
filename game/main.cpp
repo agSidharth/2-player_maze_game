@@ -184,13 +184,15 @@ int main(int argc, char* argv[])
         cout << "___PLAY_AGAIN(Y/N)___\n";
 
         close(sock_client);
-        close(sock_server);
+        if(my_id == 0) close(sock_server);
         pthread_cancel(thread_id_client);
-        pthread_cancel(thread_id_server);
+        if(my_id == 0)pthread_cancel(thread_id_server);
         number_of_connected_clients = 0;
         //c = "n";
        // var_seed = (var_seed*4)/3;
         
+        //cout << "a" <<endl;
         cin>>c;
+        //cout << "HI"<<endl;
     }
 }
