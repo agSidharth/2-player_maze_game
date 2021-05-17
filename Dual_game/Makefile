@@ -1,16 +1,7 @@
-CC = g++
-CFLAG = -w
-SDLFLAG = -lSDL2 -lSDL2_image -lSDL2_ttf
+.PHONY:game
+game: main.cpp
+	g++ -o game main.cpp `sdl2-config --cflags --libs` -lSDL2_ttf -lSDL2_mixer -lpthread -I. -Wall -lSDL2_image
 
-
-OBJ_F = game.hpp player.hpp
-
-all: $(OBJ_F) Main.cpp
-	$(CC) Main.cpp $(CFLAG) $(SDLFLAG) -o game
-
-.PHONY: clean
+.PHONY:clean
 clean:
-	rm -f *.o
-	rm -f *.out
 	rm -f game
-

@@ -9,7 +9,7 @@ class bullet
 {
 public:
 
-	bullet(int x,int y,int dir);
+	bullet(int x,int y,int dir,int my_id);
 	
 	void init(SDL_Renderer *renderer);
 	bool safe_move(int xpos,int ypos,int type,int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE]);
@@ -18,7 +18,8 @@ public:
 
 	SDL_Texture* bulletTex;
 	SDL_Rect destR;
-	
+
+	int shooter;
 	int pathlen = 0;			//stores total pathlength covered till now, bullet can go finite distances only..
 	int direction; 
 	int distance = 8;		//distance moved in single iteration.				
@@ -29,18 +30,40 @@ void bullet::clear()
 	bulletTex = nullptr;
 }
 
-bullet::bullet(int x,int y,int dir)
+bullet::bullet(int x,int y,int dir,int my_id)
 {
+	shooter = my_id;
 	destR.w = BULLET_SIZE;
 	destR.h = BULLET_SIZE;
 	switch (dir)
 	{
-		case 0:	destR.x = x; destR.y = y - TILE_SIZE; break;
-		case 1: destR.x = x + TILE_SIZE; destR.y = y; break;
-		case 2: destR.x = x; destR.y = y + TILE_SIZE; break;
-		case 3: destR.x = x - TILE_SIZE; destR.y = y; break;
+		case 0:	destR.x = x; destR.y = y - (PLAYER_SIZE+3); break;
+		case 1: destR.x = x + (PLAYER_SIZE+3); destR.y = y; break;
+		case 2: destR.x = x; destR.y = y + (PLAYER_SIZE+3); break;
+		case 3: destR.x = x - (PLAYER_SIZE+3); destR.y = y; break;
 	}
 	direction = dir;
+	
+	if(destR.x<0)
+	{
+		destR.x = 1;
+		direction = 1;
+	}
+	else if(destR.x>SCREEN_WIDTH)
+	{
+		destR.x = SCREEN_WIDTH-1;
+		direction = 3;
+	}
+	else if(destR.y<0)
+	{
+		destR.y = 1;
+		direction = 2;
+	}
+	else if(destR.y>SCREEN_HEIGHT)
+	{
+		destR.y = SCREEN_HEIGHT-1;
+		direction = 0;
+	}
 }
 
 void bullet::init(SDL_Renderer *renderer)
@@ -64,18 +87,19 @@ bool bullet::safe_move(int xpos,int ypos,int type,int map[SCREEN_WIDTH/TILE_SIZE
 
 bool bullet::move(int map[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE],player* player1,player* player2)
 {
-	if(SDL_HasIntersection(&destR,&(player1->destR))==SDL_TRUE)
+	if(pathlen >= 2000) return false;
+
+	if(SDL_HasIntersection(&destR,&(player1->destR))==SDL_TRUE && !(shooter==0 && pathlen<distance))
 	{
 		player1->health = 0;
 		return false;
 	}
-	else if(SDL_HasIntersection(&destR,&(player2->destR))==SDL_TRUE)
+	else if(SDL_HasIntersection(&destR,&(player2->destR))==SDL_TRUE && !(shooter==1 && pathlen<distance))
 	{
 		player2->health = 0;
 		return false;
 	}
 
-	if(pathlen >= 2000) return false;
 	int xpos,ypos;
 
 	switch(direction)

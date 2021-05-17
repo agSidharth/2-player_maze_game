@@ -15,7 +15,7 @@ public:
 
     Map(SDL_Renderer *renderer);
 
-    void DrawMap(SDL_Renderer *renderer);
+    void DrawMap(SDL_Renderer *renderer,int temp_seed);
 
     void clean();
 
@@ -61,7 +61,6 @@ Map::Map(SDL_Renderer *renderer)
     second_vent.h = TILE_SIZE;
     
     Maze* matrix = new Maze(SCREEN_WIDTH/TILE_SIZE,SCREEN_HEIGHT/TILE_SIZE);
-    cout << "HI";
     matrix -> init(34);
     
     matrix -> create(0,0);
@@ -72,19 +71,18 @@ Map::Map(SDL_Renderer *renderer)
         for(int col=0;col<SCREEN_HEIGHT/TILE_SIZE;col++)
         {
             map[row][col] = vector_map[row][col];
-            cout << map[row][col];
         }
-        cout << endl;
     }
     
 }
 
-void Map::DrawMap(SDL_Renderer *renderer)
+void Map::DrawMap(SDL_Renderer *renderer,int temp_seed)
 {
     int type = 0;
     int xpos = 0;
     int ypos = 0;
     
+    srand(temp_seed);
     for(int row=0;row<SCREEN_WIDTH/TILE_SIZE;row++)
     {
         for(int col=0;col<SCREEN_HEIGHT/TILE_SIZE;col++)
@@ -94,7 +92,7 @@ void Map::DrawMap(SDL_Renderer *renderer)
             ypos = col*TILE_SIZE;
             if(type == 0)
             {
-            	int k = rand()%160000;
+            	int k = rand()%70000;
             	if(k==0) map[row][col] = 2;
             }
             switch(type)

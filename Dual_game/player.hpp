@@ -2,6 +2,8 @@
 #include<iostream>
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_image.h>
+#include "constants.hpp"
+#include "Map.hpp"
 using namespace std;
 
 class player
@@ -9,20 +11,12 @@ class player
 public:
 
 	player(int x,int y,int z,int w);
-
 	void init(SDL_Renderer *renderer,string path);						//initialize the player
-
 	SDL_Rect valid_move(SDL_Rect box,int xmove,int ymove,int maze[SCREEN_WIDTH/TILE_SIZE][SCREEN_HEIGHT/TILE_SIZE]);
+	SDL_Rect teleport(SDL_Rect box,Map* maze,Mix_Chunk* vent_sound);
 
-	SDL_Rect teleport(SDL_Rect box,Map* maze);
-
-	void incoins(int x=1) {coins+=x;}	//increase coins by x(or 1 if not provided)
-
-	bool spendcoins(int);				//decrease coins
-
-	void touch(Map* maze,int type);
-
-	void ForScore(TTF_Font* Font,SDL_Renderer *renderer,string intro);
+	bool touch(Map* maze,int type);
+	void ForScore(TTF_Font* Font,SDL_Renderer *renderer,string intro,bool add);
 
 	void clean();
 
@@ -58,11 +52,11 @@ player::player(int x,int y,int score_x,int score_y)
 	health = 100;
 }
 
-void player::ForScore(TTF_Font* Font,SDL_Renderer *renderer,string intro)
+void player::ForScore(TTF_Font* Font,SDL_Renderer *renderer,string intro,bool add)
 {
 	SDL_Color Black= {0,0,0,255};
 
-	intro =  intro + to_string(coins);
+	if(add) intro =  intro + to_string(coins);
 	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Font, intro.c_str(), Black);
 	scoreTex = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
 	SDL_FreeSurface(surfaceMessage);
@@ -105,11 +99,12 @@ SDL_Rect player::valid_move(SDL_Rect box,int xmove,int ymove,int map[SCREEN_WIDT
 	return temp;
 }
 
-SDL_Rect player::teleport(SDL_Rect box,Map* maze)
+SDL_Rect player::teleport(SDL_Rect box,Map* maze,Mix_Chunk* vent_sound)
 {
 	SDL_Rect temp_vent = maze->first_vent;
 	if(SDL_HasIntersection(&temp_vent,&box)==SDL_TRUE)
 	{
+		Mix_PlayChannel(-1,vent_sound, 0 );
 		box.x = maze->second_vent.x;
 		box.y = maze->second_vent.y;
 		return box;
@@ -117,6 +112,7 @@ SDL_Rect player::teleport(SDL_Rect box,Map* maze)
 	temp_vent = maze->second_vent;
 	if(SDL_HasIntersection(&temp_vent,&box)==SDL_TRUE)
 	{
+		Mix_PlayChannel(-1,vent_sound, 0 );
 		box.x = maze->first_vent.x;
 		box.y = maze->first_vent.y;
 		return box;
@@ -124,18 +120,7 @@ SDL_Rect player::teleport(SDL_Rect box,Map* maze)
 	return box;
 }
 
-bool player::spendcoins(int x)
-{
-	if(coins >= x)
-	{
-		coins -= x;
-		return true;
-	}
-	else
-		return false;
-}
-
-void player::touch(Map* maze,int type)		//(3*PLAYER_SIZE)/4 to for much more efficient touc
+bool player::touch(Map* maze,int type)		//(3*PLAYER_SIZE)/4 to for much more efficient touc
 {
 	int xpos = destR.x;
 	int ypos = destR.y;
@@ -144,21 +129,25 @@ void player::touch(Map* maze,int type)		//(3*PLAYER_SIZE)/4 to for much more eff
 	{
 		maze->map[xpos/TILE_SIZE][ypos/TILE_SIZE] = 0; 
 		coins++;
+		return true;
 	}
-	else if(maze->map[xpos+((3*PLAYER_SIZE)/4)/TILE_SIZE][ypos/TILE_SIZE]==type)
+	else if(maze->map[(xpos+((3*PLAYER_SIZE)/4))/TILE_SIZE][ypos/TILE_SIZE]==type)
 	{
-		maze->map[xpos+((3*PLAYER_SIZE)/4)/TILE_SIZE][ypos/TILE_SIZE] = 0; 
+		maze->map[(xpos+((3*PLAYER_SIZE)/4))/TILE_SIZE][ypos/TILE_SIZE] = 0; 
 		coins++;
+		return true;
 	}
-	else if(maze->map[xpos/TILE_SIZE][ypos+((3*PLAYER_SIZE)/4)/TILE_SIZE]==type)
+	else if(maze->map[xpos/TILE_SIZE][(ypos+((3*PLAYER_SIZE)/4))/TILE_SIZE]==type)
 	{
-		maze->map[xpos/TILE_SIZE][ypos+((3*PLAYER_SIZE)/4)/TILE_SIZE] = 0;
-		coins++;	
-	}
-	else if(maze->map[xpos+((3*PLAYER_SIZE)/4)/TILE_SIZE][ypos+((3*PLAYER_SIZE)/4)/TILE_SIZE]==type)
-	{
-		maze->map[xpos+((3*PLAYER_SIZE)/4)/TILE_SIZE][ypos+((3*PLAYER_SIZE)/4)/TILE_SIZE] = 0;
+		maze->map[xpos/TILE_SIZE][(ypos+((3*PLAYER_SIZE)/4))/TILE_SIZE] = 0;
 		coins++;
+		return true;	
 	}
-	return ;
+	else if(maze->map[(xpos+((3*PLAYER_SIZE)/4))/TILE_SIZE][(ypos+((3*PLAYER_SIZE)/4))/TILE_SIZE]==type)
+	{
+		maze->map[(xpos+((3*PLAYER_SIZE)/4))/TILE_SIZE][(ypos+((3*PLAYER_SIZE)/4))/TILE_SIZE] = 0;
+		coins++;
+		return true;
+	}
+	return false;
 }
