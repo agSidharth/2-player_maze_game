@@ -1,4 +1,5 @@
 # 2-player_maze_game
+This program is a two player shooting maze game involving features like invisibility, teleportation, reflecting bullets, random map generation all blended together to give a wonderfull gaming experience to the user.
 
 ## Libraries Needed
 * This program requires the SDL2 library, along with SDL2_image, SDL2_mixer, SDL2_ttf.
