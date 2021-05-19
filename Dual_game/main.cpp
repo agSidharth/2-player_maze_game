@@ -41,7 +41,7 @@ void* client_loop(void *arg) {
         if (id == -1) {
             seeed = tab[2];
             receive_new_id(tab[1]);
-            cout <<"CL"<< tab[2]<< endl;
+            //cout <<"CL"<< tab[2]<< endl;
         }
         if(tab[0]==1 && start)
         {
@@ -134,9 +134,9 @@ int main(int argc, char* argv[])
         string begin;
 
         seeed = (4*seeed)/3;
-        cout << seeed;
+        //cout << seeed;
         srand(seeed);
-        cout << seeed;
+        //cout << seeed;
     	game = new Game(my_id);
             
         strcpy(char_title,title.c_str());
