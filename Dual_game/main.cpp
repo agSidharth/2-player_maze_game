@@ -39,9 +39,9 @@ void* client_loop(void *arg) {
         client_listen(socket, tab);
         id = tab[0];
         if (id == -1) {
-            receive_new_id(tab[1]);
             seeed = tab[2];
-            //cout <<"CL"<< tab[2]<< endl;
+            receive_new_id(tab[1]);
+            cout <<"CL"<< tab[2]<< endl;
         }
         if(tab[0]==1 && start)
         {
@@ -72,13 +72,13 @@ int main(int argc, char* argv[])
     if (argv[1][0] == 'c')
     {
         if(argc == 4) seed = atoi(argv[3]);
-        seeed = seed;
+        //seeed = seed;
         srand(seed);
     }
     if (argv[1][0] == 's')
     {
         if(argc == 3) seed = atoi(argv[2]);
-        seeed = seed;
+        //seeed = seed;
         srand(seed);
     }
 
@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
         		usleep(30);
         	}
         }
-       
+        usleep(30);
         string title = "PLAYER";
         int won,rep = 0;
         
@@ -134,7 +134,9 @@ int main(int argc, char* argv[])
         string begin;
 
         seeed = (4*seeed)/3;
+        cout << seeed;
         srand(seeed);
+        cout << seeed;
     	game = new Game(my_id);
             
         strcpy(char_title,title.c_str());
