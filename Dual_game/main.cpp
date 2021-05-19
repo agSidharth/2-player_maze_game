@@ -40,6 +40,8 @@ void* client_loop(void *arg) {
         id = tab[0];
         if (id == -1) {
             receive_new_id(tab[1]);
+            seeed = tab[2];
+            //cout <<"CL"<< tab[2]<< endl;
         }
         if(tab[0]==1 && start)
         {
@@ -55,7 +57,8 @@ void* client_loop(void *arg) {
 
 int main(int argc, char* argv[])
 {
-	
+	seeed = time(0);
+    //cout << seeed<<endl;
 	if( (argc <2 || argc >4)  )
 	{
 		cout << "Pass s/c for server or client and server address in case you are client.. Can also pass seed";
@@ -69,11 +72,13 @@ int main(int argc, char* argv[])
     if (argv[1][0] == 'c')
     {
         if(argc == 4) seed = atoi(argv[3]);
+        seeed = seed;
         srand(seed);
     }
     if (argv[1][0] == 's')
     {
         if(argc == 3) seed = atoi(argv[2]);
+        seeed = seed;
         srand(seed);
     }
 
@@ -104,9 +109,7 @@ int main(int argc, char* argv[])
             prepare_server(&sock_server, &server_addr);
             pthread_create(&thread_id_server, NULL, server_receive_loop, &sock_server);
         }
-
         prepare_client(&sock_client, &client_addr);
-        
         pthread_create(&thread_id_client, NULL, client_loop, &sock_client);
         short dummy[(TAB_SIZE)];
         send_to_server(sock_client, server_addr, my_id, dummy);
@@ -114,6 +117,7 @@ int main(int argc, char* argv[])
         {
         	usleep(30);
         }
+        //srand(seeed);
         if(my_id == 0)
         {
         	while(number_of_connected_clients != 2)
@@ -129,14 +133,14 @@ int main(int argc, char* argv[])
         title = title + to_string(my_id+1);
         string begin;
 
-        seed = (4*seed)/3;
-        srand(seed);
+        seeed = (4*seeed)/3;
+        srand(seeed);
     	game = new Game(my_id);
             
         strcpy(char_title,title.c_str());
         game ->init(char_title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT);
         start = true;
-
+        //cout <<"MAIn"<< seeed <<endl;;
     	while(game->end_time>0)
     	{	
     		TIME++;

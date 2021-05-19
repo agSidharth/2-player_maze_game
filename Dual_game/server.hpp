@@ -16,6 +16,7 @@
 
 #define SERVER_PORT 1234
 
+int seeed;
 void prepare_server(int *sock, struct sockaddr_in *server_sock);
 void send_data(int sock, struct sockaddr_in client, short tab[], int size);
 void* server_receive_loop(void *arg);
@@ -69,6 +70,7 @@ void* server_receive_loop(void *arg) {
             short tab[3];
             tab[0] = -1;
             tab[1] = client_pos;
+            tab[2] = seeed;
             connected += 1;
             send_data(socket, clients_addresses[client_pos], tab, (TAB_SIZE+1));
         }
