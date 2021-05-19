@@ -60,7 +60,7 @@ Game::Game(int x)
 {
 	my_id = x;
 	invisible_one_time = 0;
-	end_time = 60;
+	end_time = 30;
 	temp_seed = 0;
 }
 

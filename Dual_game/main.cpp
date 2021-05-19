@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
 
             if(!game->isRunning) game->end_time--;
 
-            if(game->end_time<=0) {sleep(2); break;}
+            if(game->end_time<=0) {sleep(3); break;}
     	}
 
     	won = game ->clean();
