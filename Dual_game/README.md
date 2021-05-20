@@ -12,7 +12,7 @@ Run the program write the following commands on your terminal
 * If you are a client then use the command `$ ./game c <ip_addr>` after the server has hosted the network.
 * To continue playing after the game finishes the server must first press the key `y` followed by the client.
 * To provide seed to generate another random game `$ ./game s <seed>` and `./game c <ip_addr> <seed>` with both seeds being the same.
-* Further details of gameplay can be found in ` ./Dual_game/gameplay.pdf`.
+* Further details of gameplay can be found in ` .2_player_maze_game/gameplay.pdf`.
 
 ## UseFull Links
 * To get the complete details of the project see [Task2 - SubTask1](https://www.cse.iitd.ac.in/~rijurekha/cop290_2021.html)
