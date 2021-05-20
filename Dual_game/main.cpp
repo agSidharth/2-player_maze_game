@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
     }
     if (argv[1][0] == 's')
     {
-        if(argc == 3) seed = atoi(argv[2]);
+        if(argc == 3) seeed = atoi(argv[2]);
         //seeed = seed;
         srand(seed);
     }
